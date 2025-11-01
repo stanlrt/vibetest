@@ -29,8 +29,8 @@
 
 4. Duplicate `.env.example` and add your Gemini key ([create one here](https://aistudio.google.com/app/apikey))
 
-5. Run the desired script:
+5. Run the script:
 
     ```bash
-    uv run python src/YOUR_SCRIPT.py
+    uv run python src/main.py
     ```

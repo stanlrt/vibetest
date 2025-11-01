@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "A short description of my project."
 requires-python = ">=3.13"
 dependencies = [
-    "browser-use>=0.7.9",
+    "browser-use==0.9.5",
     "langchain-google-genai",
     "python-dotenv",
     "pydantic",
