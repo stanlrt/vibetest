@@ -156,19 +156,37 @@ async def main():
     """
 
     task = """
-1. Access task: Navigate to https://p6swj5-8000.csb.app/
-2. UX-Task 1:
-{
-    "requirement": "The user must be able to join an existing game using a game code.",
-    "steps": [
-        "Use the PIN input element to enter the game code '5627'.",
-        "Enter "John" as the player name in the name input field.",
-    ]
-    "acceptance_criteria": "The user is successfully added to the game lobby and can see other players if any."
-    "advice": True,
-    "new_tab": False
-}
-3. End-of-list task.
+[
+    {
+        "number": 0,
+        "requirement": "Navigate to https://zv997r-8000.csb.app/",
+    }, 
+    {
+        "number": 1,
+        "requirement": "The user must be able to create a new game.",
+        "steps": [
+            "Create a new game.",
+            "Enter 'Stan' as the player name in the name input field.",
+            "Copy or save the generated game code for later use.",
+        ],
+        "acceptance_criteria": "The user is successfully added to the game lobby and can see other players if any."
+    },
+    {
+        "number": 2,
+        "requirement": "The user must be able to join an existing game using a game code.",
+        "steps": [
+            "Use the PIN input element to enter the game code you saved in the previous task.",
+            "Enter 'John' as the player name in the name input field.",
+        ],
+        "acceptance_criteria": "The user is successfully added to the game lobby and can see other players if any.",
+        "new_tab": True,
+    },
+    {
+        "number": 3,
+        "requirement": "End of list.",
+    }
+
+]
 """
 
     browser = Browser(headless=False,

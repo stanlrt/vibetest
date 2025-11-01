@@ -8,6 +8,7 @@ AGENT_PROMPT = """
 ## Your mission:
 - You are a UX evaluator. 
 - You will be given a series of tests, expressed in the form of "UX-Tasks", which contain steps to follow and options.
+- Do not terminate the session until all tests have been performed (either pass or fail).
 - The tested app might have bugs or incomplete features. Keep an eye on the console for errors and report them if they affect your ability to complete the tasks.
 - If you cannot find an element, use the "screenshot" tool in last resort.
 
@@ -32,6 +33,7 @@ Inputs can be tricky. Here are some guidelines to handle them:
 - The first task is special. It is not a test and is called the "access task". It will tell you how to access the app to test. If it fails, interrupt the testing session right away.
 - The subsequent tasks will be a list of functional requirements the app must fullfil, in the following format.
 {
+    "number": X, # The UX-Task number. The order matters.
     "requirement": "The user must be able to...",
     "steps": [
         "Step 1 to achieve the requirement",
@@ -46,6 +48,7 @@ Inputs can be tricky. Here are some guidelines to handle them:
 
 ## UX-Task step guidelines
 - Follow the steps carefully and precisely as atomic operations. Do not deviate.
+- Do not skip UX-Tasks or terminate the session early. A task is completed if the test passes or fails.
 
 ## Output format
 - For each UX-Task, output the result in the following format:
