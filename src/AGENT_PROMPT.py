@@ -52,7 +52,7 @@ Inputs can be tricky. Here are some guidelines to handle them:
 
 ## Output format
 - For each UX-Task, output the result in the following format:
-{NT
+{
     "ux-task-nr": X, # The UX-Task number
     "requirement": "...",
     "passed": True/False,
