@@ -34,3 +34,5 @@
     ```bash
     uv run python src/main.py
     ```
+
+    It will spawn a new Chromium window. Avoid interacting with the webpage to not disrupt the agent.
