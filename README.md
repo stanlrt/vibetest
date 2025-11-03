@@ -27,7 +27,7 @@
     > [!NOTE]  
     > If you use VSCode and Pylance cannot resolve packages, open the command palette and execute "Python: Select Interpreter". Then choos the venv.
 
-4. Duplicate `.env.example` and add your Gemini key ([create one here](https://aistudio.google.com/app/apikey))
+4. Duplicate `.env.example` and add your browser-use key ([create one here](https://cloud.browser-use.com/dashboard/settings))
 
 5. Run the script:
 
