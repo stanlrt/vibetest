@@ -1,7 +1,10 @@
+import argparse
 import asyncio
 import json
 import os
 from .agent1_prompt import AGENT1_PROMPT
+from .experiment_logger import log_experiment
+from .sample_conversation import complex_conversation
 from dotenv import load_dotenv
 import google.generativeai as genai
 
@@ -13,11 +16,11 @@ if "GOOGLE_API_KEY" not in os.environ:
 
 genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
 
-async def extract_user_stories(conversation: str) -> dict:
+async def extract_ux_tasks(conversation: str, model_name: str) -> dict:
     
-    #This function takes a conversation and extracts user stories from it.
+    #This function takes a conversation and extracts UX tasks from it.
     
-    model = genai.GenerativeModel('models/gemini-flash-latest')
+    model = genai.GenerativeModel(model_name)
 
     prompt = f"{AGENT1_PROMPT}\n\nHere is the conversation:\n{conversation}"
 
@@ -31,34 +34,39 @@ async def extract_user_stories(conversation: str) -> dict:
         elif response_text.startswith("```"):
             response_text = response_text[3:-3].strip()
         
-        return json.loads(response_text)
+        result = json.loads(response_text)
+        
+        log_experiment(
+            input_data=conversation,
+            output_data=result,
+            model_name=model_name,
+            prompt=prompt,
+            system_instruction=AGENT1_PROMPT
+        )
+
+        return result
         
     except (json.JSONDecodeError, AttributeError) as e:
         # Handle JSON parsing errors or missing text attribute
         return {"error": "Failed to parse LLM response as JSON", "response": response.text if hasattr(response, 'text') else str(response)}
 
 async def main():
+    parser = argparse.ArgumentParser(description="Run Agent 1 with a specific model.")
+    parser.add_argument("--model", type=str, default="models/gemini-1.5-flash", help="The model to use.")
+    args = parser.parse_args()
 
-    #sample conversation to test the agent 1 user story extraction.
-
-    sample_conversation = json.dumps([
-        {"role": "user", "content": "Hey, can you help me build a simple to-do list app?"},
-        {"role": "developer", "content": "Sure! What features are you thinking of?"},
-        {"role": "user", "content": "I want to be able to add tasks to a list."},
-        {"role": "developer", "content": "Okay, adding tasks. What else?"},
-        {"role": "user", "content": "I also need to be able to delete them once I'm done."},
-        {"role": "developer", "content": "Makes sense. Add and delete. Anything else?"},
-        {"role": "user", "content": "Maybe mark them as complete?"},
-        {"role": "developer", "content": "Got it. So, add, delete, and mark as complete. Let's start with that."},
-    ])
+    #sample conversation to test the agent 1 UX task extraction.
+    
+    sample_conversation = json.dumps(complex_conversation)
 
     print("Input Conversation:")
     print(sample_conversation)
 
-    user_stories = await extract_user_stories(sample_conversation)
+    print(f"Using model: {args.model}")
+    ux_tasks = await extract_ux_tasks(sample_conversation, args.model)
 
-    print("Extracted User Stories:")
-    print(json.dumps(user_stories))
+    print("Extracted UX Tasks:")
+    print(json.dumps(ux_tasks))
 
 if __name__ == "__main__":
     if os.name == 'nt':
