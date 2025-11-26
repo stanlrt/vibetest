@@ -4,12 +4,12 @@ This repository contains the Q-NCLC agents organized as a monorepo.
 
 ## Structure
 
-```
+```txt
 Q-NCLC/
-├── packages/
-│   ├── agent1/       # Agent 1 implementation
-│   ├── agent2/       # Agent 2 implementation
-│   └── shared/       # Shared utilities
+└── packages/
+    ├── agent1/       # Agent 1 implementation
+    ├── agent2/       # Agent 2 implementation
+    └── shared/       # Shared utilities
 ```
 
 ## Prerequisites
@@ -53,11 +53,13 @@ uv run --package agent2 python -m agent2.main
 ## Development
 
 - **Add a dependency to a package**:
+  
   ```bash
   uv add --package agent1 <package-name>
   ```
 
 - **Run tests (if available)**:
+  
   ```bash
   uv run pytest
   ```
