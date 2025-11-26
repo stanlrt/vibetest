@@ -5,54 +5,41 @@ import os
 from .agent1_prompt import AGENT1_PROMPT
 from .experiment_logger import log_experiment
 from .sample_conversation import complex_conversation
+from .llm_providers import get_provider
 from dotenv import load_dotenv
-import google.generativeai as genai
 
-# Environment variable is set in the .env file or in the terminal using "set GOOGLE_API_KEY=your_api_key_here"
+# Environment variable is set in the .env file
 load_dotenv()
-
-if "GOOGLE_API_KEY" not in os.environ:
-    raise ValueError("GOOGLE_API_KEY environment variable not set.")
-
-genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
 
 async def extract_ux_tasks(conversation: str, model_name: str) -> dict:
     
     #This function takes a conversation and extracts UX tasks from it.
     
-    model = genai.GenerativeModel(model_name)
-
-    prompt = f"{AGENT1_PROMPT}\n\nHere is the conversation:\n{conversation}"
-
-    response = await model.generate_content_async(prompt)
-
     try:
-        response_text = response.text
-        # Clean issues with responses wrapped in code blocks
-        if response_text.startswith("```json"):
-            response_text = response_text[7:-3].strip()
-        elif response_text.startswith("```"):
-            response_text = response_text[3:-3].strip()
-        
-        result = json.loads(response_text)
+        provider = get_provider(model_name)
+        result = await provider.generate_json(
+            prompt=f"Here is the conversation:\n{conversation}",
+            system_instruction=AGENT1_PROMPT,
+            model_name=model_name
+        )
         
         log_experiment(
             input_data=conversation,
             output_data=result,
             model_name=model_name,
-            prompt=prompt,
+            prompt=f"Here is the conversation:\n{conversation}",
             system_instruction=AGENT1_PROMPT
         )
 
         return result
         
-    except (json.JSONDecodeError, AttributeError) as e:
-        # Handle JSON parsing errors or missing text attribute
-        return {"error": "Failed to parse LLM response as JSON", "response": response.text if hasattr(response, 'text') else str(response)}
+    except Exception as e:
+        # Handle exceptions from providers
+        return {"error": f"Failed to process with model {model_name}: {str(e)}", "response": str(e)}
 
 async def main():
     parser = argparse.ArgumentParser(description="Run Agent 1 with a specific model.")
-    parser.add_argument("--model", type=str, default="models/gemini-1.5-flash", help="The model to use.")
+    parser.add_argument("--model", type=str, default="models/gemini-1.5-flash", help="The model to use (e.g., models/gemini-1.5-flash or gpt-4o).")
     args = parser.parse_args()
 
     #sample conversation to test the agent 1 UX task extraction.
@@ -66,7 +53,7 @@ async def main():
     ux_tasks = await extract_ux_tasks(sample_conversation, args.model)
 
     print("Extracted UX Tasks:")
-    print(json.dumps(ux_tasks))
+    print(json.dumps(ux_tasks, indent=2))
 
 if __name__ == "__main__":
     if os.name == 'nt':
