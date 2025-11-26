@@ -6,6 +6,9 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = ["shared", "python-dotenv>=1.0.1"]
 
+[project.scripts]
+agent1 = "agent1.agent1:run"
+
 [tool.uv.sources]
 shared = { workspace = true }
 

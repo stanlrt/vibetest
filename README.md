@@ -38,13 +38,13 @@ Q-NCLC/
 ### Agent 1
 
 ```bash
-uv run --package agent1 python -m agent1.agent1
+uv run agent1
 ```
 
 ### Agent 2
 
 ```bash
-uv run --package agent2 python -m agent2.main
+uv run agent2
 ```
 
 > [!NOTE]

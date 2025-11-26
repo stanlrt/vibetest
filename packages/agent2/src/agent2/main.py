@@ -77,5 +77,10 @@ async def main():
     print(f"Total time: {total_duration:.2f} seconds")
 
 
-if __name__ == "__main__":
+def run():
+    """Entry point for the agent2 CLI command."""
     asyncio.run(main())
+
+
+if __name__ == "__main__":
+    run()

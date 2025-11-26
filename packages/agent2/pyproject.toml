@@ -13,6 +13,9 @@ dependencies = [
     "pydantic-settings",
 ]
 
+[project.scripts]
+agent2 = "agent2.main:run"
+
 [tool.uv.sources]
 shared = { workspace = true }
 
