@@ -60,8 +60,12 @@ async def main():
     print("Extracted UX Tasks:")
     print(json.dumps(ux_tasks, indent=2))
 
-if __name__ == "__main__":
+def run():
+    """Entry point for the agent1 CLI command."""
     if os.name == 'nt':
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-
     asyncio.run(main())
+
+
+if __name__ == "__main__":
+    run()

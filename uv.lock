@@ -4360,6 +4360,10 @@ wheels = [
 name = "q-nclc-workspace"
 version = "0.1.0"
 source = { virtual = "." }
+dependencies = [
+    { name = "agent1" },
+    { name = "agent2" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -4367,6 +4371,10 @@ dev = [
 ]
 
 [package.metadata]
+requires-dist = [
+    { name = "agent1", editable = "packages/agent1" },
+    { name = "agent2", editable = "packages/agent2" },
+]
 
 [package.metadata.requires-dev]
 dev = [{ name = "pytest", specifier = ">=8.3.3" }]
