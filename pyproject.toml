@@ -6,10 +6,8 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = []
 
-[tool.uv]
-dev-dependencies = [
-    "pytest>=8.3.3",
-]
+[dependency-groups]
+dev = ["pytest>=8.3.3"]
 
 [tool.uv.workspace]
 members = ["packages/*"]
