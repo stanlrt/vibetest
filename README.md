@@ -1,38 +1,65 @@
-# vibetest
+# Q-NCLC Monorepo
+
+This repository contains the Q-NCLC agents organized as a monorepo.
+
+## Structure
+
+```txt
+Q-NCLC/
+└── packages/
+    ├── agent1/       # Agent 1 implementation
+    ├── agent2/       # Agent 2 implementation
+    └── shared/       # Shared utilities
+```
 
 ## Prerequisites
 
-1. Python 3.13 or higher
-
-2. uv
+1. Python 3.12 or higher
+2. [uv](https://github.com/astral-sh/uv)
 
 ## Setup
 
 1. Clone the repo
 
-2. Create and activate a virtual environment
+2. Sync dependencies:
 
    ```bash
-   uv venv
+   uv sync
    ```
 
-   Then follow the activation instruction (usually `source .venv/bin/activate` on Unix or `.venv\Scripts\activate` on Windows)
+   > [!NOTE]
+   > `uv sync` automatically creates a virtual environment in `.venv`.
+   > If you use VSCode and Pylance cannot resolve packages, open the command palette, execute "Python: Select Interpreter", and choose the environment in `.venv`.
 
-3. Install the deps
+3. Duplicate `.env.example` to `.env` and add your API keys (e.g., `BROWSER_USE_API_KEY`, `OPENAI_API_KEY`, etc.).
 
-    ```bash
-    uv pip install -e .
-    ```
+## Running the Agents
 
-    > [!NOTE]  
-    > If you use VSCode and Pylance cannot resolve packages, open the command palette and execute "Python: Select Interpreter". Then choos the venv.
+### Agent 1
 
-4. Duplicate `.env.example` and add your browser-use key ([create one here](https://cloud.browser-use.com/dashboard/settings))
+```bash
+uv run --package agent1 python -m agent1.agent1
+```
 
-5. Run the script:
+### Agent 2
 
-    ```bash
-    uv run python src/main.py
-    ```
+```bash
+uv run --package agent2 python -m agent2.main
+```
 
-    It will spawn a new Chromium window. Avoid interacting with the webpage to not disrupt the agent.
+> [!NOTE]
+> Avoid interacting with the browser window spawned by Agent 2 to not disrupt the agent.
+
+## Development
+
+- **Add a dependency to a package**:
+  
+  ```bash
+  uv add --package agent1 <package-name>
+  ```
+
+- **Run tests (if available)**:
+  
+  ```bash
+  uv run pytest
+  ```

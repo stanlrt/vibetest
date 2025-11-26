@@ -1,19 +1,13 @@
 [project]
-name = "vibetest"
+name = "q-nclc-workspace"
 version = "0.1.0"
-description = "A short description of my project."
-requires-python = ">=3.13"
-dependencies = [
-    "browser-use==0.9.5",
-    "langchain-google-genai",
-    "python-dotenv",
-    "pydantic",
-    "pydantic-settings",
-]
+description = "Monorepo workspace for Q-NCLC agents"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+[dependency-groups]
+dev = ["pytest>=8.3.3"]
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/vibetest"]
+[tool.uv.workspace]
+members = ["packages/*"]

@@ -1,11 +1,11 @@
-from tools import register_tools
+from .tools import register_tools
 import asyncio
 import time
 from browser_use import Agent, Browser, Tools
 from browser_use import ActionResult, Browser
 from browser_use.llm import ChatBrowserUse, ChatGoogle
 
-from AGENT_PROMPT import AGENT_PROMPT
+from .agent_prompt import AGENT_PROMPT
 
 
 tools = Tools()
