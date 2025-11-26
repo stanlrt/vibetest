@@ -4,7 +4,7 @@ import json
 import os
 from .agent1_prompt import AGENT1_PROMPT
 from .experiment_logger import log_experiment
-from .sample_conversation import complex_conversation
+from .sample_conversation import complex_conversation, complex_conversation_v2
 from .llm_providers import get_provider
 from dotenv import load_dotenv
 
@@ -39,12 +39,12 @@ async def extract_ux_tasks(conversation: str, model_name: str) -> dict:
 
 async def main():
     parser = argparse.ArgumentParser(description="Run Agent 1 with a specific model.")
-    parser.add_argument("--model", type=str, default="models/gemini-1.5-flash", help="The model to use (e.g., models/gemini-1.5-flash or gpt-4o).")
+    parser.add_argument("--model", type=str, default="models/gemini-2.0-flash", help="The model to use (e.g., models/gemini-2.0-flash or gpt-4o).")
     args = parser.parse_args()
 
     #sample conversation to test the agent 1 UX task extraction.
     
-    sample_conversation = json.dumps(complex_conversation)
+    sample_conversation = json.dumps(complex_conversation_v2) #change this to complex_conversation to test the agent 1 UX task extraction.
 
     print("Input Conversation:")
     print(sample_conversation)
