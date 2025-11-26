@@ -1,6 +1,6 @@
 # Q-NCLC Monorepo
 
-This repository contains the Q-NCLC agents organized as a monorepo.
+This repository contains the vibetesting agents organized as a monorepo.
 
 ## Structure
 
