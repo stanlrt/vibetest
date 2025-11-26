@@ -3,17 +3,18 @@ import os
 import datetime
 from pathlib import Path
 
+
 def log_experiment(
     input_data: str,
     output_data: dict,
     model_name: str,
     prompt: str,
-    system_instruction: str = None
+    system_instruction: str = ""
 ):
     """
     Logs the experiment details to a JSON file if logging is enabled.
     """
-    if os.environ.get("ENABLE_EXPERIMENT_LOGGING", "false").lower() != "true":
+    if os.environ.get("AGENT_1_ENABLE_EXPERIMENT_LOGGING", "false").lower() != "true":
         return
 
     experiments_dir = Path("experiments")

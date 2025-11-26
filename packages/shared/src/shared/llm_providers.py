@@ -7,10 +7,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class LLMProvider(abc.ABC):
     @abc.abstractmethod
     async def generate_json(self, prompt: str, system_instruction: str, model_name: str) -> dict:
         pass
+
 
 class GoogleProvider(LLMProvider):
     def __init__(self):
@@ -22,15 +24,16 @@ class GoogleProvider(LLMProvider):
         model = genai.GenerativeModel(model_name)
         full_prompt = f"{system_instruction}\n\n{prompt}"
         response = await model.generate_content_async(full_prompt)
-        
+
         response_text = response.text
         # Clean issues with responses wrapped in code blocks
         if response_text.startswith("```json"):
             response_text = response_text[7:-3].strip()
         elif response_text.startswith("```"):
             response_text = response_text[3:-3].strip()
-            
+
         return json.loads(response_text)
+
 
 class OpenAIProvider(LLMProvider):
     def __init__(self):
@@ -47,23 +50,25 @@ class OpenAIProvider(LLMProvider):
             ],
             response_format={"type": "json_object"}
         )
-        response_text = response.choices[0].message.content
+        response_text = response.choices[0].message.content or ""
         return json.loads(response_text)
+
 
 def get_provider(model_name: str) -> LLMProvider:
     # Google models usually start with "models/" or contain "gemini" / "gemma"
     if model_name.startswith("models/") or "gemini" in model_name or "gemma" in model_name:
         return GoogleProvider()
-    
+
     # OpenAI models
     openai_prefixes = [
         "gpt", "chatgpt", "o1", "o3", "o4"
     ]
-    
+
     if any(model_name.startswith(prefix) for prefix in openai_prefixes):
         return OpenAIProvider()
-        
+
     else:
         # Default fallback or error? Let's try to infer or default to OpenAI if it looks like a GPT model, otherwise error.
         # For now, let's be strict to avoid confusion.
-        raise ValueError(f"Unknown model provider for model: {model_name}. Please use a known prefix (models/ for Google, gpt- for OpenAI).")
+        raise ValueError(
+            f"Unknown model provider for model: {model_name}. Please use a known prefix (models/ for Google, gpt- for OpenAI).")
