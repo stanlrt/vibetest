@@ -13,12 +13,8 @@ tools = Tools()
 register_tools(tools)
 
 
-async def main():
-    """
-    This function initializes and runs a browser-use agent
-    """
-
-    task = """
+# Default task for standalone CLI usage
+DEFAULT_TASK = """
 [
     {
         "number": 0,
@@ -52,6 +48,55 @@ async def main():
 ]
 """
 
+
+async def run_browser_test(tasks: str, headless: bool = False) -> dict:
+    """
+    Run browser tests with the given task list.
+    
+    This function can be called programmatically from other packages (e.g., vibetester).
+    
+    Args:
+        tasks: JSON string of tasks to execute
+        headless: Whether to run browser in headless mode
+        
+    Returns:
+        Dict with test results including success status, duration, and history
+    """
+    browser = Browser(
+        headless=headless,
+        keep_alive=True,
+        minimum_wait_page_load_time=0.2,
+        wait_between_actions=0.2,
+    )
+    await browser.start()
+
+    agent = Agent(
+        task=tasks,
+        llm=ChatBrowserUse(temperature=0.0),
+        browser_session=browser,
+        tools=tools,
+        flash_mode=True,
+        extend_system_message=AGENT_PROMPT,
+    )
+
+    start_time = time.time()
+    history = await agent.run()
+    duration = time.time() - start_time
+    
+    await browser.kill()
+
+    return {
+        "success": True,
+        "duration_seconds": round(duration, 2),
+        "history": str(history) if history else None
+    }
+
+
+async def main():
+    """
+    This function initializes and runs a browser-use agent with default task.
+    For programmatic usage, use run_browser_test() instead.
+    """
     browser = Browser(headless=False,
                       keep_alive=True,
                       minimum_wait_page_load_time=0.2,
@@ -59,7 +104,7 @@ async def main():
     await browser.start()
 
     agent = Agent(
-        task=task,
+        task=DEFAULT_TASK,
         llm=ChatBrowserUse(temperature=0.0),
         browser_session=browser,
         tools=tools,

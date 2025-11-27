@@ -1,0 +1,50 @@
+[
+    {
+        "role": "user",
+        "content": "I want to build a multiplayer party game app."
+    },
+    {
+        "role": "developer",
+        "content": "Cool! What kind of game mechanics are you thinking?"
+    },
+    {
+        "role": "user",
+        "content": "It's like a trivia or drawing game. One player creates a game room and others join with a code."
+    },
+    {
+        "role": "developer",
+        "content": "Got it - so we need game creation and joining. How does that work?"
+    },
+    {
+        "role": "user",
+        "content": "When someone creates a game, they enter their name like 'Stan' and get a game code. Then they wait in a lobby."
+    },
+    {
+        "role": "developer",
+        "content": "Makes sense. And for joining?"
+    },
+    {
+        "role": "user",
+        "content": "Other players enter the game code in a PIN input field, then enter their name like 'John', and they join the same lobby."
+    },
+    {
+        "role": "developer",
+        "content": "Should joining happen in the same browser tab?"
+    },
+    {
+        "role": "user",
+        "content": "No, it should be in a new tab - like a second player on the same computer for testing."
+    },
+    {
+        "role": "developer",
+        "content": "Perfect. So we have create game and join game flows. Anything else?"
+    },
+    {
+        "role": "user",
+        "content": "That's the core flow for now. Players should be able to see each other in the lobby once joined."
+    },
+    {
+        "role": "developer",
+        "content": "Alright, I'll build the game creation and joining with lobby visibility. Let's start!"
+    }
+]

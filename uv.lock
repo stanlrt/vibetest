@@ -12,6 +12,7 @@ members = [
     "agent2",
     "q-nclc-workspace",
     "shared",
+    "vibetester",
 ]
 
 [[package]]
@@ -4363,6 +4364,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "agent1" },
     { name = "agent2" },
+    { name = "vibetester" },
 ]
 
 [package.dev-dependencies]
@@ -4374,6 +4376,7 @@ dev = [
 requires-dist = [
     { name = "agent1", editable = "packages/agent1" },
     { name = "agent2", editable = "packages/agent2" },
+    { name = "vibetester", editable = "packages/vibetester" },
 ]
 
 [package.metadata.requires-dev]
@@ -4716,6 +4719,23 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ef/5e/f0cd46063a02fd8515f0e880c37d2657845b7306c16ce6c4ffc44afd9036/uvicorn-0.36.0.tar.gz", hash = "sha256:527dc68d77819919d90a6b267be55f0e76704dca829d34aea9480be831a9b9d9", size = 80032, upload-time = "2025-09-20T01:07:14.418Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/96/06/5cc0542b47c0338c1cb676b348e24a1c29acabc81000bced518231dded6f/uvicorn-0.36.0-py3-none-any.whl", hash = "sha256:6bb4ba67f16024883af8adf13aba3a9919e415358604ce46780d3f9bdc36d731", size = 67675, upload-time = "2025-09-20T01:07:12.984Z" },
+]
+
+[[package]]
+name = "vibetester"
+version = "0.1.0"
+source = { editable = "packages/vibetester" }
+dependencies = [
+    { name = "agent1" },
+    { name = "agent2" },
+    { name = "shared" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "agent1", editable = "packages/agent1" },
+    { name = "agent2", editable = "packages/agent2" },
+    { name = "shared", editable = "packages/shared" },
 ]
 
 [[package]]
