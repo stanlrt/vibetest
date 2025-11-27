@@ -1,4 +1,5 @@
 import asyncio
+import json
 
 from browser_use import ActionResult, Browser
 from browser_use.browser.events import ClickElementEvent
@@ -36,6 +37,10 @@ def register_tools(tools):
             if not xpath:
                 return ActionResult(error=f'Element at index {index} has no xpath')
 
+            # Ensure xpath starts with / for document.evaluate
+            if not xpath.startswith('/'):
+                xpath = '/' + xpath
+
             # Use JavaScript to get the element's bounding box using xpath
             js_code = """
                 (xpath) => {
@@ -54,6 +59,13 @@ def register_tools(tools):
             """
 
             coords = await page.evaluate(js_code, xpath)
+
+            # Handle case where result is returned as JSON string instead of dict
+            if isinstance(coords, str):
+                try:
+                    coords = json.loads(coords)
+                except json.JSONDecodeError:
+                    return ActionResult(error=f'Failed to parse coordinates for element at index {index}')
 
             if not coords or not isinstance(coords, dict):
                 return ActionResult(error=f'Failed to get coordinates for element at index {index}')
@@ -106,6 +118,10 @@ def register_tools(tools):
             xpath = node.xpath
             if not xpath:
                 return ActionResult(error=f'Element at index {index} has no XPath')
+
+            # Ensure xpath starts with / for document.evaluate
+            if not xpath.startswith('/'):
+                xpath = '/' + xpath
 
             # Get the current page
             page = await browser_session.get_current_page()
@@ -172,6 +188,13 @@ def register_tools(tools):
 
             visibility_result = await page.evaluate(js_visibility_check, xpath)
 
+            # Handle case where result is returned as JSON string instead of dict
+            if isinstance(visibility_result, str):
+                try:
+                    visibility_result = json.loads(visibility_result)
+                except json.JSONDecodeError:
+                    return ActionResult(error=f'Failed to parse visibility result for element at index {index}')
+
             if not visibility_result or not isinstance(visibility_result, dict):
                 return ActionResult(error=f'Failed to check visibility for element at index {index}')
 
@@ -182,9 +205,12 @@ def register_tools(tools):
                 )
 
             # Element is visible, use browser-use's internal click mechanism via event bus
-            event = browser_session.event_bus.dispatch(ClickElementEvent(node=node))
-            await event
-            click_metadata = await event.event_result(raise_if_any=True, raise_if_none=False)
+            try:
+                event = browser_session.event_bus.dispatch(ClickElementEvent(node=node))
+                await event
+                click_metadata = await event.event_result(raise_if_any=True, raise_if_none=False)
+            except Exception as click_error:
+                return ActionResult(error=f'Click event failed: {str(click_error)}')
 
             # Check if result contains validation error
             if isinstance(click_metadata, dict) and 'validation_error' in click_metadata:
