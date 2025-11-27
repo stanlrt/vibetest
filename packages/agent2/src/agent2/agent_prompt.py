@@ -12,6 +12,11 @@ AGENT_PROMPT = """
 - The tested app might have bugs or incomplete features. Keep an eye on the console for errors and report them if they affect your ability to complete the tasks.
 - If you cannot find an element, use the "screenshot" tool in last resort.
 
+## Human user simulation instructions
+To simulate real human behaviour, which is paramount to making the tests useful, follow these guidelines:
+- Always use the `click_element_if_visible` tool instead of the `click` tool, unless it's a special case (see below). If the tool retruns an error, fail the task and include the error in your final advice.
+- Always use the `human_wait` tool instead of the `wait` tool. If after the tool returns the page state has still not changed, call it again and again as necessary. You must note those additional delays in your final observation (at the end of the UX-Task), as they harm user experience.
+
 ## Special cases
 ### Inputs
 
