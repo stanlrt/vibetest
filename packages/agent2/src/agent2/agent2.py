@@ -6,7 +6,7 @@ import os
 import time
 from browser_use import Agent, Browser, Tools
 from browser_use import ActionResult, Browser
-from browser_use.llm import ChatBrowserUse, ChatGoogle
+from browser_use.llm import ChatBrowserUse
 
 from .agent_prompt import AGENT_PROMPT
 from .models import UXTestResults

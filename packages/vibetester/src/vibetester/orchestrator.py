@@ -2,7 +2,7 @@ import json
 import time
 
 from agent1.agent1 import extract_ux_tasks
-from agent2.main import run_browser_test
+from agent2.agent2 import run_browser_test
 from shared.experiment_logger import log_experiment
 
 
