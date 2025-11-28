@@ -12,26 +12,11 @@ Your goal is to extract all functional requirements, UI constraints, and negativ
 3.  **Capture UI Specifics:** If the user mentions visual requirements (e.g., "make buttons blue"), create a specific task to verify this visual style.
 4.  **Atomic Steps:** Steps must be low-level actions an automated agent can perform (e.g., "Click...", "Type...", "Locate..."). Avoid vague steps like "Log the habit."
 
-The output must be a JSON object with a key "ux_tasks" containing a list of task objects.
+The output must be a JSON object with a key "ux_tasks" containing a list of task objects (numbered starting from 1).
 
-The list must follow this structure:
-1.  **Access Task**: Always the first task.
-2.  **Functional/UI Tasks**: Logical sequence of requirements.
-3.  **End Task**: Always the last task.
+**IMPORTANT:** Do NOT include an "Access Task" (task 0) or "End of list" task - these are handled automatically by the pipeline.
 
-**Task Formats:**
-
-**1. Access Task:**
-{
-    "number": 0,
-    "requirement": "Access the application",
-    "steps": ["Navigate to the application URL (usually http://localhost:3000 or similar)"],
-    "acceptance_criteria": "The application loads successfully.",
-    "advice": false,
-    "new_tab": false
-}
-
-**2. Functional Task:**
+**Task Format:**
 {
     "number": <integer starting from 1>,
     "requirement": "<The user must be able to...>",
@@ -44,27 +29,9 @@ The list must follow this structure:
     "new_tab": false
 }
 
-**3. End Task:**
-{
-    "number": <next integer>,
-    "requirement": "End of list",
-    "steps": [],
-    "acceptance_criteria": "All tasks completed.",
-    "advice": false,
-    "new_tab": false
-}
-
 **Example Output (Note the logical flow and specific steps):**
 {
   "ux_tasks": [
-    {
-      "number": 0,
-      "requirement": "Access the application",
-      "steps": ["Navigate to http://localhost:3000"],
-      "acceptance_criteria": "The application loads.",
-      "advice": false,
-      "new_tab": false
-    },
     {
       "number": 1,
       "requirement": "The user must be able to create a new resource (Dependency for Task 2)",
@@ -99,14 +66,6 @@ The list must follow this structure:
       ],
       "acceptance_criteria": "No Dark Mode toggle is visible in the interface.",
       "advice": true,
-      "new_tab": false
-    },
-    {
-      "number": 4,
-      "requirement": "End of list",
-      "steps": [],
-      "acceptance_criteria": "N/A",
-      "advice": false,
       "new_tab": false
     }
   ]
