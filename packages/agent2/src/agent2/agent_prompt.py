@@ -64,15 +64,27 @@ To simulate real human behavior, which is essential for valuable UX testing, fol
 ---
 
 ## 📝 Required Output Format
-- For each UX-Task, output a single JSON block strictly in the following format:
-    ```json
+- **IMPORTANT:** Do NOT use write_file or any file writing actions. All results must be returned via the `done` action.
+- Track results for each UX-Task as you complete them.
+- When ALL UX-Tasks have been executed, call the `done` action with your complete results.
+- Your final output MUST be valid JSON matching this exact structure:
+
+```json
+{
+  "task_results": [
     {
-      "ux-task-nr": X,
-      "requirement": "...",
-      "passed": true/false,
-      "observations": "Your technical and UX observations during the test (e.g., console errors, double waits, element issues).",
-      "advice": "Your advice on how to improve the UX (only if 'advice' was true AND 'passed' was false)" / "N/A"
+      "ux_task_nr": 1,
+      "requirement": "The requirement that was tested",
+      "passed": true,
+      "observations": "Technical and UX observations during the test",
+      "advice": "N/A or advice if task failed and advice was requested"
     }
-    ```
-- Only output to the console, do not write to files.
+  ],
+  "summary": "Brief summary of overall test execution"
+}
+```
+
+- Each task_results entry corresponds to one UX-Task (excluding Task 0, the access task).
+- The `observations` field should include: console errors, double waits, element issues, etc.
+- The `advice` field should be "N/A" unless BOTH: (1) the task's 'advice' flag was true AND (2) 'passed' was false.
 """

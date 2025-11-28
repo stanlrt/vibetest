@@ -1,10 +1,9 @@
 import json
 import time
-from datetime import datetime
-from pathlib import Path
 
 from agent1.agent1 import extract_ux_tasks
 from agent2.main import run_browser_test
+from shared.experiment_logger import log_experiment
 
 
 async def run_pipeline(
@@ -12,14 +11,15 @@ async def run_pipeline(
     url: str,
     model_name: str,
     headless: bool = False,
-    output_dir: str = "./experiments/"
+    output_dir: str = "./data/results",
+    enable_logging: bool = False
 ) -> dict:
     """
     Run the full vibetester pipeline.
     
     1. Agent 1: Extract UX requirements from transcript
     2. Agent 2: Run browser tests against the URL
-    3. Log results
+    3. Log results (if enabled)
     
     Args:
         transcript: JSON string of chat transcript
@@ -27,6 +27,7 @@ async def run_pipeline(
         model_name: LLM model for Agent 1
         headless: Whether to run browser in headless mode
         output_dir: Directory to save experiment logs
+        enable_logging: Whether to log results (via --logging or LOGGING env var)
         
     Returns:
         Dict containing full pipeline results
@@ -37,7 +38,8 @@ async def run_pipeline(
     print("\n📋 Stage 1: Extracting UX requirements...")
     stage1_start = time.time()
     
-    ux_tasks = await extract_ux_tasks(transcript, model_name)
+    # Disable Agent 1's own logging - vibetester handles all logging
+    ux_tasks = await extract_ux_tasks(transcript, model_name, enable_logging=False)
     
     stage1_duration = time.time() - stage1_start
     
@@ -71,7 +73,6 @@ async def run_pipeline(
     total_duration = time.time() - total_start
     
     result = {
-        "timestamp": datetime.now().isoformat(),
         "config": {
             "url": url,
             "model": model_name,
@@ -79,6 +80,7 @@ async def run_pipeline(
         },
         "transcript": json.loads(transcript),
         "agent1_output": ux_tasks,
+        "agent2_input": json.loads(browser_tasks),  # The actual tasks sent to Agent 2 (with URL injected)
         "agent2_output": test_results,
         "timing": {
             "stage1_extraction_seconds": round(stage1_duration, 2),
@@ -87,7 +89,13 @@ async def run_pipeline(
         }
     }
     
-    log_pipeline_result(result, output_dir)
+    # Use shared logging function (only if enabled)
+    if enable_logging:
+        log_experiment(
+            data=result,
+            output_dir=output_dir,
+            filename_prefix="vibetester"
+        )
     
     print(f"\n⏱️  Timing Summary:")
     print(f"   Stage 1 (UX Extraction): {stage1_duration:.1f}s")
@@ -138,24 +146,3 @@ def prepare_browser_tasks(ux_tasks: dict, url: str) -> str:
         processed_tasks.append(task_copy)
     
     return json.dumps(processed_tasks)
-
-
-def log_pipeline_result(result: dict, output_dir: str):
-    """
-    Save the full pipeline result to a JSON file.
-    
-    Args:
-        result: Complete pipeline result dictionary
-        output_dir: Directory to save the log file
-    """
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-    
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"{timestamp}_vibetester.json"
-    filepath = output_path / filename
-    
-    with open(filepath, "w", encoding="utf-8") as f:
-        json.dump(result, f, indent=2, ensure_ascii=False)
-    
-    print(f"\n📁 Results logged to: {filepath}")

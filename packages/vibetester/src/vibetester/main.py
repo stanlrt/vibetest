@@ -45,6 +45,11 @@ def parse_args():
         action="store_true",
         help="Treat --transcript and --output as full paths instead of filenames"
     )
+    parser.add_argument(
+        "--logging",
+        action="store_true",
+        help="Enable logging to output directory (also enabled by LOGGING=true env var)"
+    )
     return parser.parse_args()
 
 
@@ -95,6 +100,14 @@ def resolve_output_path(output_arg: str | None, use_full_path: bool) -> str:
     return DEFAULT_RESULTS_DIR
 
 
+def is_logging_enabled(cli_flag: bool) -> bool:
+    """Check if logging is enabled via CLI flag or LOGGING env var."""
+    if cli_flag:
+        return True
+    env_val = os.environ.get("LOGGING", "").lower()
+    return env_val in ("true", "1", "yes")
+
+
 def load_transcript(transcript_path: Path) -> str:
     """
     Load and validate transcript from file path.
@@ -142,6 +155,7 @@ async def main():
     # Resolve paths
     transcript_path = resolve_transcript_path(args.transcript, args.full_paths)
     output_dir = resolve_output_path(args.output, args.full_paths)
+    enable_logging = is_logging_enabled(args.logging)
     
     # Load and validate transcript
     try:
@@ -155,6 +169,7 @@ async def main():
     print(f"   URL: {args.url}")
     print(f"   Model: {args.model}")
     print(f"   Headless: {args.headless}")
+    print(f"   Logging: {enable_logging}")
     print(f"   Output: {output_dir}")
     
     try:
@@ -163,7 +178,8 @@ async def main():
             url=args.url,
             model_name=args.model,
             headless=args.headless,
-            output_dir=output_dir
+            output_dir=output_dir,
+            enable_logging=enable_logging
         )
         
         print("\n✅ Pipeline complete!")

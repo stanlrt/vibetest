@@ -48,6 +48,12 @@ uv run vibetester \
   --full-paths
 ```
 
+### Environment Variables
+
+| Variable  | Description                              |
+| --------- | ---------------------------------------- |
+| `LOGGING` | Set to `true` to enable logging globally |
+
 ### Arguments
 
 | Argument             | Required | Default                   | Description                                                 |
@@ -58,6 +64,7 @@ uv run vibetester \
 | `--headless`         | ❌        | `False`                   | Run browser in headless mode                                |
 | `--output`, `-o`     | ❌        | `./data/results/`         | Output directory for logs                                   |
 | `--full-paths`       | ❌        | `False`                   | Treat `--transcript` and `--output` as full paths           |
+| `--logging`          | ❌        | `False`                   | Enable logging (also via `LOGGING=true` env)                |
 
 ## Transcript Format
 
