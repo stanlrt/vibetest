@@ -12,7 +12,8 @@ async def run_pipeline(
     model_name: str,
     headless: bool = False,
     output_dir: str = "./data/results",
-    enable_logging: bool = False
+    enable_logging: bool = False,
+    transcript_name: str | None = None
 ) -> dict:
     """
     Run the full vibetester pipeline.
@@ -94,7 +95,9 @@ async def run_pipeline(
         log_experiment(
             data=result,
             output_dir=output_dir,
-            filename_prefix="vibetester"
+            filename_prefix="vibetester",
+            transcript_name=transcript_name,
+            url=url
         )
     
     print(f"\n⏱️  Timing Summary:")

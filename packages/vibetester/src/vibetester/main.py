@@ -179,7 +179,8 @@ async def main():
             model_name=args.model,
             headless=args.headless,
             output_dir=output_dir,
-            enable_logging=enable_logging
+            enable_logging=enable_logging,
+            transcript_name=transcript_path.stem  # Pass transcript name without extension
         )
         
         print("\n✅ Pipeline complete!")
