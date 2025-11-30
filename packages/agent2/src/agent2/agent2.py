@@ -8,7 +8,7 @@ from browser_use import Agent, Browser, Tools
 from browser_use import ActionResult, Browser
 from browser_use.llm import ChatBrowserUse
 
-from .agent_prompt import AGENT_PROMPT
+from .agent2_prompt import AGENT_PROMPT
 from .models import UXTestResults
 from shared.experiment_logger import log_experiment
 

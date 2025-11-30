@@ -4,7 +4,7 @@ import json
 import os
 from .agent1_prompt import AGENT1_PROMPT
 from shared.experiment_logger import log_experiment
-from .sample_conversation import complex_conversation, complex_conversation_v2
+from .sample_conversation import complex_conversation, complex_conversation_v2, pitch_hum
 from shared.llm_providers import get_provider
 from dotenv import load_dotenv
 
@@ -74,7 +74,7 @@ async def main():
     # sample conversation to test the agent 1 UX task extraction.
 
     # change this to complex_conversation to test the agent 1 UX task extraction.
-    sample_conversation = json.dumps(complex_conversation_v2)
+    sample_conversation = json.dumps(pitch_hum)
 
     print("Input Conversation:")
     print(sample_conversation)
