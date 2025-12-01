@@ -15,13 +15,13 @@ load_dotenv()
 async def extract_ux_tasks(conversation: str, model_name: str, enable_logging: bool = True) -> dict:
     """
     Extract UX tasks from a conversation.
-    
+
     Args:
         conversation: JSON string of the conversation
         model_name: LLM model to use
         enable_logging: Whether to log results (default True for standalone, 
                        set False when called from vibetester which has its own logging)
-    
+
     Returns:
         Dict containing extracted UX tasks
     """
@@ -63,8 +63,8 @@ def is_logging_enabled(cli_flag: bool) -> bool:
 async def main():
     parser = argparse.ArgumentParser(
         description="Run Agent 1 with a specific model.")
-    parser.add_argument("--model", type=str, default="models/gemini-2.0-flash",
-                        help="The model to use (e.g., models/gemini-2.0-flash or gpt-4o).")
+    parser.add_argument("--model", type=str, default="models/gemini-2.5-flash",
+                        help="The model to use (e.g., models/gemini-2.5-flash or gpt-4o).")
     parser.add_argument("--logging", action="store_true",
                         help="Enable logging to ./data/results/ (also enabled by LOGGING=true env var)")
     args = parser.parse_args()

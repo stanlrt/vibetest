@@ -37,7 +37,7 @@ Adhere to the ReAct (Reason and Act) loop for every step:
 
 **Troubleshooting & Fallbacks:**
 If an action fails (e.g., input not interactable) or you are stuck in a loop:
-1. **Investigate:** Take a `screenshot` to verify the visual state.
+1. **Investigate:** Since using `evaluate`failed, take a `screenshot` and verify the visual state.
 2. **Reason:** Determine if the element is obscured or styled as "hidden."
 3. **Adapt:** - If `click_element_if_visible` fails twice, try standard `click`.
    - If input fails, try `click_element_visually` on the container, then `send_keys`.

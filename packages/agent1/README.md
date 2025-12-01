@@ -2,17 +2,17 @@
 
 Agent 1 extracts formal requirements from a natural language conversation between a human user and the vibecoding agent, and translates them into a JSON-structured list of testing steps.
 
-## Usage
+## Example usage
 
 ```bash
-uv run agent1 --model models/gemini-2.0-flash --logging
+uv run agent1 --model models/gemini-2.5-flash --logging
 ```
 
 ### Arguments
 
 | Argument    | Required | Default                   | Description                                  |
 | ----------- | -------- | ------------------------- | -------------------------------------------- |
-| `--model`   | ❌        | `models/gemini-2.0-flash` | LLM model to use                             |
+| `--model`   | ❌        | `models/gemini-2.5-flash` | LLM model to use                             |
 | `--logging` | ❌        | `False`                   | Enable logging (also via `LOGGING=true` env) |
 
 ### Environment Variables
