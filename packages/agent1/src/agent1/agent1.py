@@ -15,13 +15,13 @@ load_dotenv()
 async def extract_ux_tasks(conversation: str, model_name: str, enable_logging: bool = True) -> dict:
     """
     Extract UX tasks from a conversation.
-    
+
     Args:
         conversation: JSON string of the conversation
         model_name: LLM model to use
         enable_logging: Whether to log results (default True for standalone, 
                        set False when called from vibetester which has its own logging)
-    
+
     Returns:
         Dict containing extracted UX tasks
     """
@@ -39,7 +39,8 @@ async def extract_ux_tasks(conversation: str, model_name: str, enable_logging: b
                 data={
                     "agent": "agent1",
                     "model": model_name,
-                    "input": json.loads(conversation),
+                    "model": model_name,
+                    "input": conversation,
                     "output": result
                 },
                 filename_prefix="agent1"
@@ -65,6 +66,8 @@ async def main():
         description="Run Agent 1 with a specific model.")
     parser.add_argument("--model", type=str, default="models/gemini-2.0-flash",
                         help="The model to use (e.g., models/gemini-2.0-flash or gpt-4o).")
+    parser.add_argument(
+        "--input", type=str, help="Path to input conversation file (.json, .txt, .md)")
     parser.add_argument("--logging", action="store_true",
                         help="Enable logging to ./data/results/ (also enabled by LOGGING=true env var)")
     args = parser.parse_args()
@@ -73,8 +76,28 @@ async def main():
 
     # sample conversation to test the agent 1 UX task extraction.
 
-    # change this to complex_conversation to test the agent 1 UX task extraction.
-    sample_conversation = json.dumps(pitch_hum)
+    if args.input:
+        try:
+            with open(args.input, 'r', encoding='utf-8') as f:
+                content = f.read()
+
+            if args.input.endswith('.json'):
+                # Validate JSON if it's a JSON file
+                try:
+                    json_content = json.loads(content)
+                    sample_conversation = json.dumps(json_content)
+                except json.JSONDecodeError:
+                    print(f"Error: Invalid JSON in {args.input}")
+                    return
+            else:
+                # For txt/md, pass as is
+                sample_conversation = content
+        except FileNotFoundError:
+            print(f"Error: File not found: {args.input}")
+            return
+    else:
+        # change this to complex_conversation to test the agent 1 UX task extraction.
+        sample_conversation = json.dumps(pitch_hum)
 
     print("Input Conversation:")
     print(sample_conversation)
