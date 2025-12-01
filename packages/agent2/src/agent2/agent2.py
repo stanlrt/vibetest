@@ -5,17 +5,16 @@ import json
 import os
 import time
 from browser_use import Agent, Browser, Tools
-from browser_use import ActionResult, Browser
+from browser_use import Browser
 from browser_use.llm import ChatBrowserUse
+
 
 from .agent2_prompt import AGENT_PROMPT
 from .models import UXTestResults
 from shared.experiment_logger import log_experiment
 
 
-# Exclude write_file to prevent agent from writing to local files
-# Results should be returned via structured output instead
-tools = Tools(exclude_actions=['write_file'])
+tools = Tools(exclude_actions=["write_file", "go_back"])
 
 register_tools(tools)
 
@@ -59,14 +58,14 @@ DEFAULT_TASK = """
 async def run_browser_test(tasks: str, headless: bool = False, enable_logging: bool = False) -> dict:
     """
     Run browser tests with the given task list.
-    
+
     This function can be called programmatically from other packages (e.g., vibetester).
-    
+
     Args:
         tasks: JSON string of tasks to execute
         headless: Whether to run browser in headless mode
         enable_logging: Whether to log results (default False when called from vibetester)
-        
+
     Returns:
         Dict with test results including success status, duration, history, and structured task_results
     """
@@ -91,13 +90,13 @@ async def run_browser_test(tasks: str, headless: bool = False, enable_logging: b
     start_time = time.time()
     history = await agent.run()
     duration = time.time() - start_time
-    
+
     await browser.kill()
 
     # Extract structured output from history
     task_results = None
     final_result = history.final_result()
-    
+
     if final_result:
         try:
             # Parse the structured output
@@ -113,7 +112,7 @@ async def run_browser_test(tasks: str, headless: bool = False, enable_logging: b
         "task_results": task_results,  # Structured task results
         "history": str(history) if history else None
     }
-    
+
     if enable_logging:
         log_experiment(
             data={
@@ -123,7 +122,7 @@ async def run_browser_test(tasks: str, headless: bool = False, enable_logging: b
             },
             filename_prefix="agent2"
         )
-    
+
     return result
 
 

@@ -32,7 +32,7 @@ uv run vibetester -t sample_habit_tracker.json -u https://myapp.example.com
 uv run vibetester \
   --transcript sample_habit_tracker.json \
   --url https://myapp.example.com \
-  --model models/gemini-2.0-flash \
+  --model models/gemini-2.5-flash \
   --headless
 ```
 
@@ -60,7 +60,7 @@ uv run vibetester \
 | -------------------- | -------- | ------------------------- | ----------------------------------------------------------- |
 | `--transcript`, `-t` | ✅        | —                         | Transcript filename (in `./data/transcripts/`) or full path |
 | `--url`, `-u`        | ✅        | —                         | Web app URL to test                                         |
-| `--model`, `-m`      | ❌        | `models/gemini-2.0-flash` | LLM model for Agent 1                                       |
+| `--model`, `-m`      | ❌        | `models/gemini-2.5-flash` | LLM model for Agent 1                                       |
 | `--headless`         | ❌        | `False`                   | Run browser in headless mode                                |
 | `--output`, `-o`     | ❌        | `./data/results/`         | Output directory for logs                                   |
 | `--full-paths`       | ❌        | `False`                   | Treat `--transcript` and `--output` as full paths           |

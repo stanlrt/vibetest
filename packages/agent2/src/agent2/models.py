@@ -6,8 +6,8 @@ from pydantic import BaseModel, Field
 
 class UXTaskResult(BaseModel):
     """Result of a single UX task evaluation."""
-    
-    ux_task_nr: int = Field(
+
+    number: int = Field(
         description="The UX task number that was evaluated"
     )
     requirement: str = Field(
@@ -19,15 +19,15 @@ class UXTaskResult(BaseModel):
     observations: str = Field(
         description="Technical and UX observations during the test (e.g., console errors, double waits, element issues)"
     )
-    advice: str = Field(
-        default="N/A",
-        description="Advice on how to improve the UX (only if 'advice' was true AND 'passed' was false), otherwise 'N/A'"
+    advice: Optional[str] = Field(
+        default=None,
+        description="Advice on how to improve the UX (only if 'passed' is false)"
     )
 
 
 class UXTestResults(BaseModel):
     """Complete results from all UX task evaluations."""
-    
+
     task_results: list[UXTaskResult] = Field(
         description="List of results for each UX task that was evaluated (excluding the access task)"
     )

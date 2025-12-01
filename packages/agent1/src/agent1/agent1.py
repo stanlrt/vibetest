@@ -64,10 +64,12 @@ def is_logging_enabled(cli_flag: bool) -> bool:
 async def main():
     parser = argparse.ArgumentParser(
         description="Run Agent 1 with a specific model.")
-    parser.add_argument("--model", type=str, default="models/gemini-2.0-flash",
-                        help="The model to use (e.g., models/gemini-2.0-flash or gpt-4o).")
+
+    parser.add_argument("--model", type=str, default="models/gemini-2.5-flash",
+                        help="The model to use (e.g., models/gemini-2.5-flash or gpt-4o).")
     parser.add_argument(
         "--input", type=str, help="Path to input conversation file (.json, .txt, .md)")
+
     parser.add_argument("--logging", action="store_true",
                         help="Enable logging to ./data/results/ (also enabled by LOGGING=true env var)")
     args = parser.parse_args()
