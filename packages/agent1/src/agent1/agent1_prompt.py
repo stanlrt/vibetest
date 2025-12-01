@@ -25,8 +25,9 @@ Analyze the conversation and extract "UX-Tasks". Follow this strict reasoning pr
 
 2. **Execution Flow & State Preservation:**
    - **Validation First:** Always verify negative constraints (e.g., "Button disabled") *before* performing the action that changes the state (e.g., "Click Button").
-   - **Multi-User Identity:** Use specific actors: "User 1 (Host)" and "User 2 (Joiner)".
-   - **New Tabs:** To simulate a second user, you MUST create a task with `"new_tab": true`.
+   - **Multi-User Identity:** Use specific actors: "User 1 (Host)" and "User 2 (Joiner)". Never combine tasks that involve different users into a single task.
+   - **New Tabs:** To simulate a new user, you MUST create a task "Open new tab for User NR, access app URL" before any actions by the new user.
+   - **User switching:** When switching between users, add an task "Switch to tab N". 
 
 3. **Consolidation:**
    - Merge duplicate mentions of the same feature into a single logical task flow.
@@ -133,6 +134,15 @@ Output:
     },
     {
       "number": 3,
+      "requirement": "Open new tab for User 2 (Joiner), access app URL",
+      "steps": [
+        "Open new browser tab",
+        "Navigate to the access URL"
+      ],
+      "acceptance_criteria": "App loads successfully in new tab",
+    },
+    {
+      "number": 4,
       "requirement": "User 2 (Joiner) joins the room (Multi-player flow)",
       "steps": [
         "Open new browser tab",
@@ -144,13 +154,46 @@ Output:
       "acceptance_criteria": "User 2 is in the lobby",
     },
     {
-      "number": 4,
+      "number": 5,
+      "requirement": "Switch to tab 1 (User 1)",
+      "steps": [
+        "Switch to tab 1"
+      ],
+      "acceptance_criteria": "Tab 1 is active",
+    },
+    {
+      "number": 6,
       "requirement": "User 1 sees User 2 in the lobby",
       "steps": [
         "Switch to tab 1",
         "Verify 'JoinerName' appears in player list"
       ],
-      "acceptance_criteria": "Host sees new player",
+      "acceptance_criteria": "User 1 sees new player",
+    },
+    {
+      "number": 7,
+      "requirement": "User 1 marks they are ready",
+      "steps": [
+        "Click 'Ready' button"
+      ],
+      "acceptance_criteria": "User 1 is marked as ready",
+    },
+    {
+      "number": 8,
+      "requirement": "Switch to tab 2 (User 2)",
+      "steps": [
+        "Switch to tab 2"
+        ],
+        "acceptance_criteria": "Tab 2 is active",
+     },
+     {
+      "number": 9,
+      "requirement": "User 2 marks they are ready",
+      "steps": [
+        "Switch to tab 2",
+        "Click 'Ready' button"
+      ],
+      "acceptance_criteria": "User 2 is marked as ready",
     }
   ]
 }
