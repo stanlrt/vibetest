@@ -17,6 +17,15 @@ Q-NCLC/
     └── shared/        # Shared utilities (logging, LLM providers)
 ```
 
+## System Overview
+
+The system consists of two main agents working in a pipeline:
+
+- **Agent 1 (Requirement Extractor)**: Analyzes natural language conversations between a user and a coding assistant to extract formal testing requirements. It produces a structured list of test steps.
+- **Agent 2 (Browser Tester)**: Takes the test steps from Agent 1 and executes them in a real browser environment to verify the application's behavior. It acts as an automated user and generates a test report.
+
+Together, they form the **Vibetester** pipeline, testing the application's behavior based on the user's intent.
+
 ## Prerequisites
 
 1. Python 3.12 or higher

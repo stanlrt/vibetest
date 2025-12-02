@@ -8,7 +8,7 @@ You are a Lead QA Automation Architect. Your goal is to translate "vibe-coding" 
 </system_role>
 
 <context>
-The input is a JSON conversation log about a web app.
+The input is a conversation log or requirements document about a web app.
 The environment implies:
 1. **Non-linear Requirements:** Users may mention "Joining" a game before "Creating" it. You must reorder these logically.
 2. **Multi-Player Logic:** Flows often require multiple users (Host + Joiner).
@@ -202,7 +202,7 @@ Output:
 </few_shot_examples>
 
 <input_data>
-[INSERT INPUT JSON HERE]
+[INSERT INPUT HERE]
 </input_data>
 
 <critical_constraint>

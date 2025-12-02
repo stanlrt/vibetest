@@ -129,26 +129,31 @@ def load_transcript(transcript_path: Path) -> str:
     content = transcript_path.read_text(encoding="utf-8")
 
     # Validate JSON structure
+    # Try to parse as JSON first
     try:
         data = json.loads(content)
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Invalid JSON in transcript file: {e}")
 
-    # Validate it's an array
-    if not isinstance(data, list):
-        raise ValueError("Transcript must be a JSON array of messages")
+        # If it parses as JSON, validate structure
+        if not isinstance(data, list):
+            # It's valid JSON but not a list - might be a different format or just text
+            # For now, we'll treat it as raw text if it's not the expected list format
+            return content
 
-    # Validate message structure
-    for i, msg in enumerate(data):
-        if not isinstance(msg, dict):
-            raise ValueError(
-                f"Message {i} must be an object, got {type(msg).__name__}")
-        if "role" not in msg:
-            raise ValueError(f"Message {i} missing 'role' field")
-        if "content" not in msg:
-            raise ValueError(f"Message {i} missing 'content' field")
+        # Validate message structure for JSON transcripts
+        for i, msg in enumerate(data):
+            if not isinstance(msg, dict):
+                # Valid JSON list but elements aren't objects - treat as raw text
+                return content
+            if "role" not in msg or "content" not in msg:
+                # Valid JSON list of objects but missing fields - treat as raw text
+                return content
 
-    return content
+        # If we get here, it's a valid JSON transcript
+        return content
+
+    except json.JSONDecodeError:
+        # Not JSON, treat as raw text (Markdown, etc.)
+        return content
 
 
 async def main():
