@@ -10,11 +10,10 @@ uv run agent1 --model models/gemini-2.5-flash --logging
 
 ### Arguments
 
-| Argument              | Required | Default                   | Description                                  |
-| --------------------- | -------- | ------------------------- | -------------------------------------------- |
-| `--model`             | ❌        | `models/gemini-2.5-flash` | LLM model to use                             |
-| `--logging`           | ❌        | `False`                   | Enable logging (also via `LOGGING=true` env) |
-| `--use-system-prompt` | ❌        | `False`                   | Use legacy system prompt instead of DSPy     |
+| Argument    | Required | Default                   | Description                                  |
+| ----------- | -------- | ------------------------- | -------------------------------------------- |
+| `--model`   | ❌        | `models/gemini-2.5-flash` | LLM model to use                             |
+| `--logging` | ❌        | `False`                   | Enable logging (also via `LOGGING=true` env) |
 
 ### Environment Variables
 

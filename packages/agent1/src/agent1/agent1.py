@@ -4,43 +4,12 @@ import argparse
 import asyncio
 import json
 import os
-from .agent1_prompt import AGENT1_PROMPT
 from shared.experiment_logger import log_experiment
 from .sample_conversation import complex_conversation, complex_conversation_v2, pitch_hum
-from shared.llm_providers import get_provider
 from dotenv import load_dotenv
 
 # Environment variable is set in the .env file
 load_dotenv()
-
-
-async def extract_ux_tasks_system_prompt(conversation: str, model_name: str, enable_logging: bool = True) -> dict:
-    """
-    Extract UX tasks using the legacy System Prompt approach.
-    """
-    try:
-        provider = get_provider(model_name)
-        result = await provider.generate_json(
-            prompt=f"Here is the conversation:\n{conversation}",
-            system_instruction=AGENT1_PROMPT,
-            model_name=model_name
-        )
-
-        if enable_logging:
-            log_experiment(
-                data={
-                    "agent": "agent1_system_prompt",
-                    "model": model_name,
-                    "input": conversation,
-                    "output": result
-                },
-                filename_prefix="agent1_system_prompt"
-            )
-
-        return result
-
-    except Exception as e:
-        return {"error": f"Failed to process with model {model_name}: {str(e)}", "response": str(e)}
 
 
 def extract_ux_tasks_dspy(conversation: str, model_name: str, enable_logging: bool = True) -> dict:
@@ -90,24 +59,19 @@ def extract_ux_tasks_dspy(conversation: str, model_name: str, enable_logging: bo
         return {"error": f"DSPy extraction failed: {str(e)}"}
 
 
-async def extract_ux_tasks(conversation: str, model_name: str, enable_logging: bool = True, use_system_prompt: bool = False) -> dict:
+async def extract_ux_tasks(conversation: str, model_name: str, enable_logging: bool = True) -> dict:
     """
-    Extract UX tasks from a conversation.
+    Extract UX tasks from a conversation using DSPy.
 
     Args:
         conversation: JSON string of the conversation
         model_name: LLM model to use
         enable_logging: Whether to log results
-        use_system_prompt: If True, use the legacy system prompt approach. If False (default), use DSPy.
 
     Returns:
         Dict containing extracted UX tasks
     """
-    if use_system_prompt:
-        return await extract_ux_tasks_system_prompt(conversation, model_name, enable_logging)
-    else:
-        # DSPy is synchronous, but we wrap it to match the async interface
-        return extract_ux_tasks_dspy(conversation, model_name, enable_logging)
+    return extract_ux_tasks_dspy(conversation, model_name, enable_logging)
 
 
 def is_logging_enabled(cli_flag: bool) -> bool:
@@ -129,9 +93,6 @@ async def main():
 
     parser.add_argument("--logging", action="store_true",
                         help="Enable logging to ./data/results/ (also enabled by LOGGING=true env var)")
-
-    parser.add_argument("--use-system-prompt", action="store_true",
-                        help="Use the legacy system prompt implementation instead of DSPy")
 
     args = parser.parse_args()
 
@@ -167,14 +128,11 @@ async def main():
 
     print(f"Using model: {args.model}")
     print(f"Logging: {'enabled' if enable_logging else 'disabled'}")
-    print(
-        f"Implementation: {'System Prompt' if args.use_system_prompt else 'DSPy'}")
 
     ux_tasks = await extract_ux_tasks(
         sample_conversation,
         args.model,
-        enable_logging=enable_logging,
-        use_system_prompt=args.use_system_prompt
+        enable_logging=enable_logging
     )
 
     print("Extracted UX Tasks:")

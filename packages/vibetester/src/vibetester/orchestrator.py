@@ -23,8 +23,7 @@ async def run_pipeline(
     headless: bool = False,
     output_dir: str = "./data/results",
     enable_logging: bool = False,
-    transcript_name: str | None = None,
-    use_system_prompt: bool = False
+    transcript_name: str | None = None
 ) -> dict:
     """
     Run the full vibetester pipeline.
@@ -54,8 +53,7 @@ async def run_pipeline(
     ux_tasks = await extract_ux_tasks(
         transcript,
         model_name,
-        enable_logging=False,
-        use_system_prompt=use_system_prompt
+        enable_logging=False
     )
 
     stage1_duration = time.time() - stage1_start

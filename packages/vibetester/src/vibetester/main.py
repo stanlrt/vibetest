@@ -50,11 +50,6 @@ def parse_args():
         action="store_true",
         help="Enable logging to output directory (also enabled by LOGGING=true env var)"
     )
-    parser.add_argument(
-        "--use-system-prompt",
-        action="store_true",
-        help="Use the legacy system prompt implementation for Agent 1 instead of DSPy"
-    )
     return parser.parse_args()
 
 
@@ -192,8 +187,7 @@ async def main():
             headless=args.headless,
             output_dir=output_dir,
             enable_logging=enable_logging,
-            transcript_name=transcript_path.stem,  # Pass transcript name without extension
-            use_system_prompt=args.use_system_prompt
+            transcript_name=transcript_path.stem  # Pass transcript name without extension
         )
 
         print("\n✅ Pipeline complete!")
