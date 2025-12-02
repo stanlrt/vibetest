@@ -23,7 +23,8 @@ async def run_pipeline(
     headless: bool = False,
     output_dir: str = "./data/results",
     enable_logging: bool = False,
-    transcript_name: str | None = None
+    transcript_name: str | None = None,
+    use_system_prompt: bool = False
 ) -> dict:
     """
     Run the full vibetester pipeline.
@@ -50,7 +51,12 @@ async def run_pipeline(
     stage1_start = time.time()
 
     # Disable Agent 1's own logging - vibetester handles all logging
-    ux_tasks = await extract_ux_tasks(transcript, model_name, enable_logging=False)
+    ux_tasks = await extract_ux_tasks(
+        transcript,
+        model_name,
+        enable_logging=False,
+        use_system_prompt=use_system_prompt
+    )
 
     stage1_duration = time.time() - stage1_start
 

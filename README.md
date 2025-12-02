@@ -66,6 +66,9 @@ This will:
 
 Run `uv run vibetester --help` for all options.
 
+> [!NOTE]
+> By default, Agent 1 uses the **DSPy** implementation. To use the legacy system prompt, add the `--use-system-prompt` flag.
+
 ### Agent 1 (Standalone)
 
 ```bash
