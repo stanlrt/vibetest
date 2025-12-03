@@ -1,0 +1,185 @@
+import json
+import time
+from importlib.metadata import version
+from datetime import datetime
+
+from agent1.agent1 import extract_ux_tasks
+from agent2.agent2 import run_browser_test
+from shared.experiment_logger import log_experiment
+
+
+def get_browser_use_version() -> str:
+    """Get the installed browser-use package version."""
+    try:
+        return version('browser-use')
+    except Exception:
+        return "unknown"
+
+
+async def run_pipeline(
+    transcript: str,
+    url: str,
+    model_name: str,
+    headless: bool = False,
+    output_dir: str = "./data/results",
+    enable_logging: bool = False,
+    transcript_name: str | None = None,
+    tool_name: str | None = None
+) -> dict:
+    """
+    Run the full vibetester pipeline.
+
+    1. Agent 1: Extract UX requirements from transcript
+    2. Agent 2: Run browser tests against the URL
+    3. Log results (if enabled)
+
+    Args:
+        transcript: JSON string of chat transcript
+        url: Web app URL to test
+        model_name: LLM model for Agent 1
+        headless: Whether to run browser in headless mode
+        output_dir: Directory to save experiment logs
+        enable_logging: Whether to log results (via --logging or LOGGING env var)
+        transcript_name: Optional name of the transcript/test case
+        tool_name: Optional name of the tool used to generate the app (e.g., 'bolt', 'lovable')
+
+    Returns:
+        Dict containing full pipeline results
+    """
+    total_start = time.time()
+
+    # === Stage 1: Extract UX Tasks ===
+    print("\n📋 Stage 1: Extracting UX requirements...")
+    stage1_start = time.time()
+
+    # Disable Agent 1's own logging - vibetester handles all logging
+    ux_tasks, dspy_prompt = await extract_ux_tasks(
+        transcript,
+        model_name,
+        enable_logging=False
+    )
+
+    stage1_duration = time.time() - stage1_start
+
+    # Check for errors from Agent 1
+    if "error" in ux_tasks:
+        print(f"   ❌ Agent 1 failed: {ux_tasks['error']}")
+        raise RuntimeError(f"Agent 1 failed: {ux_tasks['error']}")
+
+    task_count = len(ux_tasks.get('ux_tasks', []))
+    print(f"   ✓ Extracted {task_count} UX tasks ({stage1_duration:.1f}s)")
+
+    # === Stage 2: Browser Testing ===
+    print("\n🌐 Stage 2: Running browser tests...")
+    stage2_start = time.time()
+
+    # Prepare task list with URL injection
+    browser_tasks = prepare_browser_tasks(ux_tasks, url)
+
+    print(f"   Tasks prepared for browser agent:")
+    print(f"   {browser_tasks[:200]}..." if len(
+        browser_tasks) > 200 else f"   {browser_tasks}")
+
+    test_results = await run_browser_test(
+        tasks=browser_tasks,
+        headless=headless
+    )
+
+    stage2_duration = time.time() - stage2_start
+    print(f"   ✓ Browser tests complete ({stage2_duration:.1f}s)")
+
+    # === Final Logging ===
+    total_duration = time.time() - total_start
+
+    # Try to parse transcript as JSON for the result object
+    try:
+        transcript_data = json.loads(transcript)
+    except json.JSONDecodeError:
+        # If it's not JSON (e.g. markdown), include it as a string
+        transcript_data = transcript
+
+    result = {
+        "summary": {
+            "url": url,
+            "timestamp": datetime.now().isoformat(),
+            "total_time_seconds": round(total_duration, 2),
+            "agent1": {
+                "model": model_name,
+                "tasks_extracted": task_count,
+                "time_seconds": round(stage1_duration, 2),
+            },
+            "agent2": {
+                "headless": headless,
+                "browser_use_version": get_browser_use_version(),
+                "success": test_results.get("success", False),
+                "time_seconds": round(stage2_duration, 2),
+            },
+        },
+        "transcript": transcript_data,
+        "dspy_prompt": dspy_prompt,
+        "agent1_output": ux_tasks,
+        "agent2_output": test_results,
+    }
+
+    # Use shared logging function (only if enabled)
+    if enable_logging:
+        log_experiment(
+            data=result,
+            output_dir=output_dir,
+            filename_prefix="vibetester",
+            transcript_name=transcript_name,
+            url=url,
+            tool_name=tool_name
+        )
+
+    print(f"\n⏱️  Timing Summary:")
+    print(f"   Stage 1 (UX Extraction): {stage1_duration:.1f}s")
+    print(f"   Stage 2 (Browser Test):  {stage2_duration:.1f}s")
+    print(f"   Total:                   {total_duration:.1f}s")
+
+    return result
+
+
+def prepare_browser_tasks(ux_tasks: dict, url: str) -> str:
+    """
+    Transform Agent 1 output into Agent 2's expected task format.
+    Prepends task 0 (URL navigation) and appends end task.
+
+    Args:
+        ux_tasks: Output from Agent 1 containing 'ux_tasks' list
+        url: The web app URL to test
+
+    Returns:
+        JSON string of tasks ready for Agent 2
+    """
+    tasks = ux_tasks.get("ux_tasks", [])
+
+    # Create task 0 - URL navigation (not generated by Agent 1)
+    task_0 = {
+        "number": 0,
+        "requirement": f"Navigate to {url}",
+        "steps": [f"Navigate to {url}"],
+        "acceptance_criteria": "The application loads successfully.",
+        "advice": False,
+        "new_tab": False
+    }
+
+    # Calculate end task number (after all tasks from Agent 1)
+    end_task_number = max([t.get("number", 0) for t in tasks], default=0) + 1
+
+    # Create end task (not generated by Agent 1)
+    end_task = {
+        "number": end_task_number,
+        "requirement": "End of list",
+        "steps": [],
+        "acceptance_criteria": "All tasks completed.",
+        "advice": False,
+        "new_tab": False
+    }
+
+    if not tasks:
+        # Fallback: create minimal task list
+        return json.dumps([task_0, {"number": 1, "requirement": "End of list"}])
+
+    # Prepend task 0 and append end task
+    return json.dumps([task_0] + tasks + [end_task])

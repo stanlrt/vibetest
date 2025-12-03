@@ -1,0 +1,11 @@
+# Results
+
+Vibetester pipeline outputs are stored here.
+
+Each run generates a timestamped JSON file containing:
+
+- Configuration used
+- Input transcript
+- Agent 1 extracted UX tasks  
+- Agent 2 browser test results
+- Timing information

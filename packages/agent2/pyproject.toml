@@ -6,15 +6,11 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "shared",
-    "browser-use==0.9.5",
-    "langchain-google-genai",
-    "python-dotenv",
-    "pydantic",
-    "pydantic-settings",
+    "browser-use==0.10.1",
 ]
 
 [project.scripts]
-agent2 = "agent2.main:run"
+agent2 = "agent2.agent2:run"
 
 [tool.uv.sources]
 shared = { workspace = true }

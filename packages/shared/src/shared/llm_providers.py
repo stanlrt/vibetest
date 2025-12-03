@@ -1,11 +1,23 @@
 import abc
 import os
+import re
 import json
 import google.generativeai as genai
 from openai import AsyncOpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
+
+
+def fix_json_trailing_commas(json_str: str) -> str:
+    """
+    Remove trailing commas before closing brackets/braces in JSON.
+    LLMs sometimes produce invalid JSON with trailing commas like {"key": "value",}
+    """
+    # Remove trailing commas before } or ]
+    # This regex finds comma followed by optional whitespace and then } or ]
+    pattern = r',(\s*[}\]])'
+    return re.sub(pattern, r'\1', json_str)
 
 
 class LLMProvider(abc.ABC):
@@ -31,6 +43,9 @@ class GoogleProvider(LLMProvider):
             response_text = response_text[7:-3].strip()
         elif response_text.startswith("```"):
             response_text = response_text[3:-3].strip()
+
+        # Fix trailing commas that LLMs sometimes produce
+        response_text = fix_json_trailing_commas(response_text)
 
         return json.loads(response_text)
 

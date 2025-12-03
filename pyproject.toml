@@ -4,11 +4,12 @@ version = "0.1.0"
 description = "Monorepo workspace for Q-NCLC agents"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = ["agent1", "agent2"]
+dependencies = ["agent1", "agent2", "vibetester"]
 
 [tool.uv.sources]
 agent1 = { workspace = true }
 agent2 = { workspace = true }
+vibetester = { workspace = true }
 
 [dependency-groups]
 dev = ["pytest>=8.3.3"]

@@ -4,7 +4,11 @@ version = "0.1.0"
 description = "Agent 1 implementation"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = ["shared", "python-dotenv>=1.0.1"]
+dependencies = [
+    "shared",
+    "python-dotenv",
+    "dspy-ai>=3.0.4",
+]
 
 [project.scripts]
 agent1 = "agent1.agent1:run"
