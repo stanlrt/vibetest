@@ -23,7 +23,8 @@ async def run_pipeline(
     headless: bool = False,
     output_dir: str = "./data/results",
     enable_logging: bool = False,
-    transcript_name: str | None = None
+    transcript_name: str | None = None,
+    tool_name: str | None = None
 ) -> dict:
     """
     Run the full vibetester pipeline.
@@ -31,7 +32,7 @@ async def run_pipeline(
     1. Agent 1: Extract UX requirements from transcript
     2. Agent 2: Run browser tests against the URL
     3. Log results (if enabled)
-    4. 
+
     Args:
         transcript: JSON string of chat transcript
         url: Web app URL to test
@@ -39,6 +40,8 @@ async def run_pipeline(
         headless: Whether to run browser in headless mode
         output_dir: Directory to save experiment logs
         enable_logging: Whether to log results (via --logging or LOGGING env var)
+        transcript_name: Optional name of the transcript/test case
+        tool_name: Optional name of the tool used to generate the app (e.g., 'bolt', 'lovable')
 
     Returns:
         Dict containing full pipeline results
@@ -50,7 +53,11 @@ async def run_pipeline(
     stage1_start = time.time()
 
     # Disable Agent 1's own logging - vibetester handles all logging
-    ux_tasks = await extract_ux_tasks(transcript, model_name, enable_logging=False)
+    ux_tasks, dspy_prompt = await extract_ux_tasks(
+        transcript,
+        model_name,
+        enable_logging=False
+    )
 
     stage1_duration = time.time() - stage1_start
 
@@ -109,6 +116,7 @@ async def run_pipeline(
             },
         },
         "transcript": transcript_data,
+        "dspy_prompt": dspy_prompt,
         "agent1_output": ux_tasks,
         "agent2_output": test_results,
     }
@@ -120,7 +128,8 @@ async def run_pipeline(
             output_dir=output_dir,
             filename_prefix="vibetester",
             transcript_name=transcript_name,
-            url=url
+            url=url,
+            tool_name=tool_name
         )
 
     print(f"\n⏱️  Timing Summary:")

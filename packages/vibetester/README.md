@@ -4,7 +4,7 @@ End-to-end UX testing pipeline that orchestrates Agent 1 and Agent 2.
 
 ## Overview
 
-**vibetester** takes a chat transcript (from a "vibe-coding" session) and a web app URL, then:
+**vibetester** takes a test case (containing a chat transcript and URL) or separate transcript + URL, then:
 
 1. **Agent 1**: Extracts UX requirements from the conversation
 2. **Agent 2**: Tests those requirements in a real browser
@@ -19,19 +19,28 @@ uv sync
 
 ## Usage
 
-### Basic Usage
+### Recommended: Unified Test Case (`-uc`)
+
+The simplest way to run tests - use a single JSON file containing both the URL and transcript:
 
 ```bash
-# Just specify the filename - it will look in ./data/transcripts/
-uv run vibetester -t sample_habit_tracker.json -u https://myapp.example.com
+# Just specify the test case filename - it will look in ./data/test-cases/
+uv run vibetester -uc pitch-humanity-simple.json
+```
+
+### Legacy: Separate URL and Transcript (`-u` and `-t`)
+
+For flexible testing, you can specify the URL and transcript separately:
+
+```bash
+uv run vibetester -t pitch-humanity-simple.json -u https://myapp.example.com
 ```
 
 ### Full Options
 
 ```bash
 uv run vibetester \
-  --transcript sample_habit_tracker.json \
-  --url https://myapp.example.com \
+  --use-case pitch-humanity-simple.json \
   --model models/gemini-2.5-flash \
   --headless
 ```
@@ -56,19 +65,38 @@ uv run vibetester \
 
 ### Arguments
 
-| Argument             | Required | Default                   | Description                                                 |
-| -------------------- | -------- | ------------------------- | ----------------------------------------------------------- |
-| `--transcript`, `-t` | ✅        | —                         | Transcript filename (in `./data/transcripts/`) or full path |
-| `--url`, `-u`        | ✅        | —                         | Web app URL to test                                         |
-| `--model`, `-m`      | ❌        | `models/gemini-2.5-flash` | LLM model for Agent 1                                       |
-| `--headless`         | ❌        | `False`                   | Run browser in headless mode                                |
-| `--output`, `-o`     | ❌        | `./data/results/`         | Output directory for logs                                   |
-| `--full-paths`       | ❌        | `False`                   | Treat `--transcript` and `--output` as full paths           |
-| `--logging`          | ❌        | `False`                   | Enable logging (also via `LOGGING=true` env)                |
+| Argument             | Required | Default                   | Description                                                               |
+| -------------------- | -------- | ------------------------- | ------------------------------------------------------------------------- |
+| `--use-case`, `-uc`  | ✅*       | —                         | Test case JSON file with `url` and `transcript` (in `./data/test-cases/`) |
+| `--transcript`, `-t` | ✅*       | —                         | [Legacy] Transcript filename (in `./data/test-cases/`) or full path       |
+| `--url`, `-u`        | ✅*       | —                         | [Legacy] Web app URL to test                                              |
+| `--model`, `-m`      | ❌        | `models/gemini-2.5-flash` | LLM model for Agent 1                                                     |
+| `--headless`         | ❌        | `False`                   | Run browser in headless mode                                              |
+| `--output`, `-o`     | ❌        | `./data/results/`         | Output directory for logs                                                 |
+| `--full-paths`       | ❌        | `False`                   | Treat `--transcript` and `--output` as full paths                         |
+| `--logging`          | ❌        | `False`                   | Enable logging (also via `LOGGING=true` env)                              |
 
-## Transcript Format
+*Either `--use-case` OR both `--url` and `--transcript` are required.
 
-The transcript must be a JSON array of messages with `role` and `content` fields:
+## Test Case Format (Recommended)
+
+Test cases are JSON objects with `url` and `transcript` keys:
+
+```json
+{
+    "url": "https://myapp.example.com",
+    "transcript": [
+        {"role": "user", "content": "I want to build a habit tracker app."},
+        {"role": "developer", "content": "Great idea. What features do you want?"},
+        {"role": "user", "content": "I need to be able to log my habits daily."},
+        {"role": "developer", "content": "Daily logging, got it. What else?"}
+    ]
+}
+```
+
+## Legacy Transcript Format
+
+For backward compatibility, you can still use standalone transcript files (JSON arrays):
 
 ```json
 [
