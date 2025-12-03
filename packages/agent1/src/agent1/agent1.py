@@ -12,9 +12,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def extract_ux_tasks_dspy(conversation: str, model_name: str, enable_logging: bool = True) -> dict:
+def extract_ux_tasks_dspy(conversation: str, model_name: str, enable_logging: bool = True) -> tuple[dict, dict | None]:
     """
     Extract UX tasks using the DSPy approach.
+
+    Returns:
+        Tuple of (result dict, prompt dict or None on error)
     """
     # Configure DSPy LM
     dspy_model_name = model_name
@@ -43,23 +46,34 @@ def extract_ux_tasks_dspy(conversation: str, model_name: str, enable_logging: bo
         # Convert Pydantic model to dict
         result = pred.output.model_dump()
 
+        # Extract the prompt from LM history
+        dspy_prompt = None
+        if lm.history:
+            last_call = lm.history[-1]
+            # Extract relevant prompt information
+            dspy_prompt = {
+                "messages": last_call.get("messages", []),
+                "model": last_call.get("model", dspy_model_name),
+            }
+
         if enable_logging:
             log_experiment(
                 data={
                     "agent": "agent1_dspy",
                     "model": model_name,
                     "input": conversation,
-                    "output": result
+                    "output": result,
+                    "dspy_prompt": dspy_prompt
                 },
                 filename_prefix="agent1_dspy"
             )
 
-        return result
+        return result, dspy_prompt
     except Exception as e:
-        return {"error": f"DSPy extraction failed: {str(e)}"}
+        return {"error": f"DSPy extraction failed: {str(e)}"}, None
 
 
-async def extract_ux_tasks(conversation: str, model_name: str, enable_logging: bool = True) -> dict:
+async def extract_ux_tasks(conversation: str, model_name: str, enable_logging: bool = True) -> tuple[dict, dict | None]:
     """
     Extract UX tasks from a conversation using DSPy.
 
@@ -69,7 +83,7 @@ async def extract_ux_tasks(conversation: str, model_name: str, enable_logging: b
         enable_logging: Whether to log results
 
     Returns:
-        Dict containing extracted UX tasks
+        Tuple of (Dict containing extracted UX tasks, DSPy prompt dict or None)
     """
     return extract_ux_tasks_dspy(conversation, model_name, enable_logging)
 
@@ -129,7 +143,7 @@ async def main():
     print(f"Using model: {args.model}")
     print(f"Logging: {'enabled' if enable_logging else 'disabled'}")
 
-    ux_tasks = await extract_ux_tasks(
+    ux_tasks, dspy_prompt = await extract_ux_tasks(
         sample_conversation,
         args.model,
         enable_logging=enable_logging
@@ -137,6 +151,10 @@ async def main():
 
     print("Extracted UX Tasks:")
     print(json.dumps(ux_tasks, indent=2))
+
+    if dspy_prompt:
+        print("\nDSPy Prompt:")
+        print(json.dumps(dspy_prompt, indent=2))
 
 
 def run():

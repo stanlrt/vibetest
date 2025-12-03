@@ -50,7 +50,7 @@ async def run_pipeline(
     stage1_start = time.time()
 
     # Disable Agent 1's own logging - vibetester handles all logging
-    ux_tasks = await extract_ux_tasks(
+    ux_tasks, dspy_prompt = await extract_ux_tasks(
         transcript,
         model_name,
         enable_logging=False
@@ -113,6 +113,7 @@ async def run_pipeline(
             },
         },
         "transcript": transcript_data,
+        "dspy_prompt": dspy_prompt,
         "agent1_output": ux_tasks,
         "agent2_output": test_results,
     }
