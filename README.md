@@ -7,7 +7,7 @@ This repository contains the vibetesting agents organized as a monorepo.
 ```txt
 Q-NCLC/
 ├── data/
-│   ├── transcripts/   # Input chat transcripts
+│   ├── test-cases/    # Input test cases (URL + chat transcripts)
 │   ├── results/       # Output logs from test runs
 │   └── legacy/        # Old experiment files
 └── packages/
@@ -51,15 +51,19 @@ Together, they form the **Vibetester** pipeline, testing the application's behav
 
 ### Vibetester (full pipeline)
 
-The full pipeline: extracts UX requirements from a chat transcript and tests them in a browser.
+The full pipeline: extracts UX requirements from a test case and tests them in a browser.
 
 ```bash
+# Recommended: Use unified test case file (contains URL and transcript)
+uv run vibetester -uc pitch-humanity-simple.json
+
+# Legacy: Separate transcript and URL
 uv run vibetester -t my_transcript.json -u https://myapp.example.com
 ```
 
 This will:
 
-1. Load the transcript from `./data/transcripts/my_transcript.json`
+1. Load the test case from `./data/test-cases/pitch-humanity-simple.json`
 2. Extract UX requirements using Agent 1
 3. Test them in a browser using Agent 2
 4. Save results to `./data/results/` (when `--logging` is enabled)

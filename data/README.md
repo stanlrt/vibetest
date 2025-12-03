@@ -4,30 +4,33 @@ This directory contains all input and output data for the Q-NCLC experiments.
 
 ## Structure
 
-```
+```text
 data/
-├── transcripts/    # Input: Chat conversations for testing
+├── test-cases/     # Input: Test cases with URL and chat transcripts
 ├── results/        # Output: Vibetester pipeline results
 └── legacy/         # Archive: Old experiment files
 ```
 
 ---
 
-## Transcripts (`transcripts/`)
+## Test Cases (`test-cases/`)
 
-Chat transcripts are the input for the vibetester pipeline. They represent "vibe-coding" conversations between a user and a developer.
+Test cases are the input for the vibetester pipeline. They contain both the URL to test and a chat transcript representing a "vibe-coding" conversation between a user and a developer.
 
 ### Format
 
-Transcripts must be JSON arrays with `role` and `content` fields:
+Test cases are JSON objects with `url` and `transcript` keys:
 
 ```json
-[
-    {"role": "user", "content": "I want to build a habit tracker app."},
-    {"role": "developer", "content": "Great idea. What features do you want?"},
-    {"role": "user", "content": "I need to be able to log my habits daily."},
-    {"role": "developer", "content": "Daily logging, got it."}
-]
+{
+    "url": "https://myapp.example.com",
+    "transcript": [
+        {"role": "user", "content": "I want to build a habit tracker app."},
+        {"role": "developer", "content": "Great idea. What features do you want?"},
+        {"role": "user", "content": "I need to be able to log my habits daily."},
+        {"role": "developer", "content": "Daily logging, got it."}
+    ]
+}
 ```
 
 ### Role Values
@@ -42,6 +45,7 @@ Transcripts must be JSON arrays with `role` and `content` fields:
 Use descriptive names: `<app_name>_<variant>.json`
 
 Examples:
+
 - `habit_tracker_simple.json`
 - `plant_dashboard_v2.json`
 
@@ -99,13 +103,15 @@ Archived experiment files from earlier development. Kept for reference.
 ## Running a Test
 
 ```bash
-# Basic usage - just specify the filename
+# Recommended: Use unified test case file
+uv run vibetester -uc pitch-humanity-simple.json
+
+# Legacy: Separate transcript and URL
 uv run vibetester -t sample_habit_tracker.json -u https://your-app.com
 
 # With all options
 uv run vibetester \
-  --transcript sample_habit_tracker.json \
-  --url https://your-app.com \
+  --use-case pitch-humanity-simple.json \
   --model models/gemini-2.0-flash \
   --headless
 
