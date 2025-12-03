@@ -49,6 +49,11 @@ class TestScriptSignature(dspy.Signature):
     2. NEGATIVE TESTING: Verify error states or disabled buttons BEFORE performing the successful action.
     3. TAB MANAGEMENT: Explicitly manage state. Use "Switch to tab 1" or "Open new tab for User 2".
     4. LIFECYCLE: A resource must be CREATED (User 1) before it can be JOINED (User 2).
+    5. IMPLICIT EDGE CASES: Beyond explicit requirements, infer what SHOULD fail based on common sense:
+       - If there's authentication, test accessing protected resources without logging in.
+       - If there are inputs with logical constraints, test invalid/impossible values.
+       - If there's authorization (roles/ownership), test actions by unauthorized users.
+       - If there's data validation, test boundary violations the app should reject.
     """
 
     conversation_log: str = dspy.InputField(
@@ -76,7 +81,6 @@ class QAArchitect(dspy.Module):
 
 if __name__ == "__main__":
     from dspy.teleprompt import BootstrapFewShot
-    import dsp
 
     # --- Configuration ---
     # We use a dummy setup to ensure the script runs immediately for you.
@@ -99,7 +103,7 @@ if __name__ == "__main__":
         ).model_dump_json()
 
         # Use DummyLM to simulate a model response without an API key
-        model = dspy.DummyLM([dummy_content])
+        model = dspy.DummyLM([dummy_content])  # type: ignore[attr-defined]
         dspy.settings.configure(lm=model)
     else:
         print(f"✅ Using configured LM: {dspy.settings.lm}")
@@ -149,6 +153,48 @@ if __name__ == "__main__":
         ]
     )
 
+    # Implicit edge case example: authentication/authorization
+    example_implicit_edge = """User: "Users can view their own profile and edit their bio." """
+    example_implicit_edge_output = TestScriptOutput(
+        reasoning="Implicit edge cases: 1. Unauthenticated access to profile page should fail. 2. User should not edit another user's profile. Test these BEFORE the happy path.",
+        ux_tasks=[
+            UXTask(number=1, requirement="Verify unauthenticated user cannot access profile page",
+                   steps=["Open new tab", "Navigate to '/profile'",
+                          "Verify redirect to login or error message"],
+                   acceptance_criteria="User is redirected to login or sees 'Please log in' message"),
+            UXTask(number=2, requirement="Verify user cannot edit another user's profile",
+                   steps=["Navigate to '/profile/other-user-id'",
+                          "Locate 'Edit Bio' button", "Verify element is disabled or not visible"],
+                   acceptance_criteria="Edit functionality is not available for other users' profiles"),
+            UXTask(number=3, requirement="User edits their own bio successfully",
+                   steps=["Navigate to '/profile'", "Click 'Edit Bio'",
+                          "Type 'New bio text'", "Click 'Save'"],
+                   acceptance_criteria="Bio updated successfully")
+        ]
+    )
+
+    # Implicit edge case example: logical/data validation constraints
+    example_logical_constraint = """User: "Users can set a price range filter with min and max values." """
+    example_logical_constraint_output = TestScriptOutput(
+        reasoning="Implicit edge cases: 1. Min > Max is logically impossible, should be rejected. 2. Negative prices may be invalid. Test invalid inputs BEFORE valid filter.",
+        ux_tasks=[
+            UXTask(number=1, requirement="Verify app rejects impossible range (min greater than max)",
+                   steps=["Locate 'Min Price' input", "Type '500'",
+                          "Locate 'Max Price' input", "Type '100'",
+                          "Click 'Apply Filter' button", "Verify error message"],
+                   acceptance_criteria="Error displayed indicating min must be less than max"),
+            UXTask(number=2, requirement="Verify app rejects negative price values",
+                   steps=["Locate 'Min Price' input", "Type '-50'",
+                          "Click 'Apply Filter' button", "Verify error message"],
+                   acceptance_criteria="Error displayed indicating price cannot be negative"),
+            UXTask(number=3, requirement="User applies valid price range filter",
+                   steps=["Locate 'Min Price' input", "Type '100'",
+                          "Locate 'Max Price' input", "Type '500'",
+                          "Click 'Apply Filter' button", "Verify results filtered"],
+                   acceptance_criteria="Results show only items within price range")
+        ]
+    )
+
     trainset = [
         dspy.Example(conversation_log=example1_input,
                      output=example1_output).with_inputs("conversation_log"),
@@ -156,6 +202,10 @@ if __name__ == "__main__":
                      output=example2_output).with_inputs("conversation_log"),
         dspy.Example(conversation_log=example_negative,
                      output=example_negative_output).with_inputs("conversation_log"),
+        dspy.Example(conversation_log=example_implicit_edge,
+                     output=example_implicit_edge_output).with_inputs("conversation_log"),
+        dspy.Example(conversation_log=example_logical_constraint,
+                     output=example_logical_constraint_output).with_inputs("conversation_log"),
     ]
 
     # --- Metric Function (The Quality Gate) ---
