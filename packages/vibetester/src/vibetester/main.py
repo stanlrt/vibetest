@@ -184,15 +184,15 @@ def load_transcript(transcript_path: Path) -> str:
         return content
 
 
-def load_test_case(test_case_path: Path) -> tuple[str, str]:
+def load_test_case(test_case_path: Path) -> tuple[str, str, str | None]:
     """
-    Load a unified test case file containing both URL and transcript.
+    Load a unified test case file containing URL, transcript, and optional tool.
 
     Args:
         test_case_path: Path to JSON test case file
 
     Returns:
-        Tuple of (url, transcript_json_string)
+        Tuple of (url, transcript_json_string, tool_name or None)
 
     Raises:
         FileNotFoundError: If file doesn't exist
@@ -221,6 +221,7 @@ def load_test_case(test_case_path: Path) -> tuple[str, str]:
 
     url = data["url"]
     transcript = data["transcript"]
+    tool = data.get("tool")  # Optional field
 
     # Transcript can be a list (JSON transcript) or a string (raw text)
     if isinstance(transcript, list):
@@ -230,7 +231,7 @@ def load_test_case(test_case_path: Path) -> tuple[str, str]:
     else:
         raise ValueError("'transcript' must be a list or string")
 
-    return url, transcript_str
+    return url, transcript_str, tool
 
 
 async def main():
@@ -239,6 +240,7 @@ async def main():
     # Initialize variables
     test_case_path: Path | None = None
     transcript_path: Path | None = None
+    tool_name: str | None = None
 
     # Validate argument combinations
     if args.use_case:
@@ -250,7 +252,7 @@ async def main():
 
         test_case_path = resolve_test_case_path(args.use_case, args.full_paths)
         try:
-            url, transcript = load_test_case(test_case_path)
+            url, transcript, tool_name = load_test_case(test_case_path)
             transcript_name = test_case_path.stem
         except (FileNotFoundError, ValueError) as e:
             print(f"❌ Error loading test case: {e}")
@@ -286,6 +288,8 @@ async def main():
     else:
         print(f"   Transcript: {source_path}")
     print(f"   URL: {url}")
+    if tool_name:
+        print(f"   Tool: {tool_name}")
     print(f"   Model: {args.model}")
     print(f"   Headless: {args.headless}")
     print(f"   Logging: {enable_logging}")
@@ -299,7 +303,8 @@ async def main():
             headless=args.headless,
             output_dir=output_dir,
             enable_logging=enable_logging,
-            transcript_name=transcript_name
+            transcript_name=transcript_name,
+            tool_name=tool_name
         )
 
         print("\n✅ Pipeline complete!")
