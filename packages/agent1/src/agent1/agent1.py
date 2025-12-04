@@ -1,4 +1,4 @@
-from .dspy_architect import QAArchitect
+from .agent1_prompt import QAArchitect
 import dspy
 import argparse
 import asyncio
