@@ -206,7 +206,8 @@ def register_tools(tools):
 
             # Element is visible, use browser-use's internal click mechanism via event bus
             try:
-                event = browser_session.event_bus.dispatch(ClickElementEvent(node=node))
+                event = browser_session.event_bus.dispatch(
+                    ClickElementEvent(node=node))
                 await event
                 click_metadata = await event.event_result(raise_if_any=True, raise_if_none=False)
             except Exception as click_error:
@@ -218,7 +219,8 @@ def register_tools(tools):
 
             return ActionResult(
                 extracted_content=f'Element at index {index} was visible and clicked successfully',
-                metadata=click_metadata if isinstance(click_metadata, dict) else None,
+                metadata=click_metadata if isinstance(
+                    click_metadata, dict) else None,
             )
 
         except Exception as e:
@@ -228,16 +230,16 @@ def register_tools(tools):
     async def human_wait() -> ActionResult:
         """
         Wait for exactly 400ms - the Doherty threshold.
-        
+
         The Doherty threshold represents the response time at which users feel a system is responding instantly.
         This creates natural, human-like pauses between actions.
-        
+
         Unlike the standard wait() action which has variable timing logic,
-        this always waits exactly 200ms.
+        this always waits exactly 400ms.
         """
-        await asyncio.sleep(0.2)
+        await asyncio.sleep(0.4)
         return ActionResult(
-            extracted_content='Waited 200ms (Doherty threshold)',
+            extracted_content='Waited 400ms (Doherty threshold)',
         )
 
 
