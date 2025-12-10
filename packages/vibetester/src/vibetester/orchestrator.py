@@ -24,7 +24,8 @@ async def run_pipeline(
     output_dir: str = "./data/results",
     enable_logging: bool = False,
     transcript_name: str | None = None,
-    tool_name: str | None = None
+    tool_name: str | None = None,
+    disable_cache: bool = False
 ) -> dict:
     """
     Run the full vibetester pipeline.
@@ -42,6 +43,7 @@ async def run_pipeline(
         enable_logging: Whether to log results (via --logging or LOGGING env var)
         transcript_name: Optional name of the transcript/test case
         tool_name: Optional name of the tool used to generate the app (e.g., 'bolt', 'lovable')
+        disable_cache: Whether to disable DSPy caching
 
     Returns:
         Dict containing full pipeline results
@@ -56,7 +58,8 @@ async def run_pipeline(
     ux_tasks, dspy_prompt = await extract_ux_tasks(
         transcript,
         model_name,
-        enable_logging=False
+        enable_logging=False,
+        disable_cache=disable_cache
     )
 
     stage1_duration = time.time() - stage1_start

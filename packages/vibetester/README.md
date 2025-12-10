@@ -42,7 +42,8 @@ uv run vibetester -t pitch-humanity-simple.json -u https://myapp.example.com
 uv run vibetester \
   --use-case pitch-humanity-simple.json \
   --model models/gemini-2.5-flash \
-  --headless
+  --headless \
+  --no-cache
 ```
 
 ### Using Full Paths
@@ -75,6 +76,7 @@ uv run vibetester \
 | `--output`, `-o`     | ❌        | `./data/results/`         | Output directory for logs                                                 |
 | `--full-paths`       | ❌        | `False`                   | Treat `--transcript` and `--output` as full paths                         |
 | `--logging`          | ❌        | `False`                   | Enable logging (also via `LOGGING=true` env)                              |
+| `--no-cache`         | ❌        | `False`                   | Disable DSPy caching for agent 1                                          |
 
 *Either `--use-case` OR both `--url` and `--transcript` are required.
 

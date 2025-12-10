@@ -56,6 +56,11 @@ def parse_args():
         action="store_true",
         help="Enable logging to output directory (also enabled by LOGGING=true env var)"
     )
+    parser.add_argument(
+        "--no-cache",
+        action="store_true",
+        help="Disable DSPy caching for fresh LLM responses"
+    )
     return parser.parse_args()
 
 
@@ -304,7 +309,8 @@ async def main():
             output_dir=output_dir,
             enable_logging=enable_logging,
             transcript_name=transcript_name,
-            tool_name=tool_name
+            tool_name=tool_name,
+            disable_cache=args.no_cache
         )
 
         print("\n✅ Pipeline complete!")

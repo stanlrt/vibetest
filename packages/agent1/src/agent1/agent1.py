@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def extract_ux_tasks_dspy(conversation: str, model_name: str, enable_logging: bool = True) -> tuple[dict, dict | None]:
+def extract_ux_tasks_dspy(conversation: str, model_name: str, enable_logging: bool = True, disable_cache: bool = False) -> tuple[dict, dict | None]:
     """
     Extract UX tasks using the DSPy approach.
 
@@ -30,7 +30,8 @@ def extract_ux_tasks_dspy(conversation: str, model_name: str, enable_logging: bo
 
     try:
         lm = dspy.LM(model=dspy_model_name,
-                     api_key=os.environ.get("GOOGLE_API_KEY"))
+                     api_key=os.environ.get("GOOGLE_API_KEY"),
+                     cache=not disable_cache)
         dspy.settings.configure(lm=lm)
 
         architect = QAArchitect()
@@ -73,7 +74,7 @@ def extract_ux_tasks_dspy(conversation: str, model_name: str, enable_logging: bo
         return {"error": f"DSPy extraction failed: {str(e)}"}, None
 
 
-async def extract_ux_tasks(conversation: str, model_name: str, enable_logging: bool = True) -> tuple[dict, dict | None]:
+async def extract_ux_tasks(conversation: str, model_name: str, enable_logging: bool = True, disable_cache: bool = False) -> tuple[dict, dict | None]:
     """
     Extract UX tasks from a conversation using DSPy.
 
@@ -81,11 +82,12 @@ async def extract_ux_tasks(conversation: str, model_name: str, enable_logging: b
         conversation: JSON string of the conversation
         model_name: LLM model to use
         enable_logging: Whether to log results
+        disable_cache: Whether to disable DSPy caching
 
     Returns:
         Tuple of (Dict containing extracted UX tasks, DSPy prompt dict or None)
     """
-    return extract_ux_tasks_dspy(conversation, model_name, enable_logging)
+    return extract_ux_tasks_dspy(conversation, model_name, enable_logging, disable_cache)
 
 
 def is_logging_enabled(cli_flag: bool) -> bool:
@@ -107,6 +109,8 @@ async def main():
 
     parser.add_argument("--logging", action="store_true",
                         help="Enable logging to ./data/results/ (also enabled by LOGGING=true env var)")
+    parser.add_argument("--no-cache", action="store_true",
+                        help="Disable DSPy caching for fresh LLM responses")
 
     args = parser.parse_args()
 
@@ -146,7 +150,8 @@ async def main():
     ux_tasks, dspy_prompt = await extract_ux_tasks(
         sample_conversation,
         args.model,
-        enable_logging=enable_logging
+        enable_logging=enable_logging,
+        disable_cache=args.no_cache
     )
 
     print("Extracted UX Tasks:")
