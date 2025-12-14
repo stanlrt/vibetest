@@ -6,8 +6,9 @@ End-to-end UX testing pipeline that orchestrates Agent 1 and Agent 2.
 
 **vibetester** takes a test case (containing a chat transcript and URL) or separate transcript + URL, then:
 
-1. **Agent 1**: Extracts UX requirements from the conversation
-2. **Agent 2**: Tests those requirements in a real browser
+1. **Agent 1**: Extracts UX requirements from the conversation into atomic test steps
+2. **Agent 2**: Tests those requirements in a real browser and generates individual results
+3. **Agent 3**: Groups related atomic tests into meaningful test scenarios with aggregated results
 
 ## Installation
 

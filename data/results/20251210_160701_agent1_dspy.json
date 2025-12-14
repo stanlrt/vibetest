@@ -1,0 +1,449 @@
+{
+  "agent": "agent1_dspy",
+  "model": "models/gemini-2.5-flash",
+  "input": "[{\"role\": \"user\", \"content\": \"# Pitch Against Humanity App: Final Specification\\n\\nThis document details the complete functionality and user flow for the \\\"Pitch Against Humanity\\\" multi-player social game app.\\n\\n## I. Game Concept\\n\\nThe objective is for players to pitch a startup idea based on a combination of two randomized cards: a **Product card** and a **Target Audience card**. Pitches should be creative, outrageous, and compelling.\\n\\n## II. User Flow\\n### A. Initial Screen (Home) * **Create Game:** A button labeled \\\"Create Game\\\" starts the host flow. * **Join Game Input:** An input field for the **4-digit code** is provided. It should visually use **4 distinct cells** (like an OTP input) to guide the user. * **Join Game Button:** The button labeled \\\"Join Game\\\" must be **disabled until a valid 4-digit code is entered**. --- ### B. Game Setup and Joining #### 1. Creating a Game (Host Flow) * **Name & Host Designation:** The player is immediately prompted for their **Name** and is automatically designated as the **Host**. * **Room Code:** A **unique 4-digit room code** is generated and prominently displayed. * **Lobby:** The Host sees a **real-time list** of all players who have joined the room. * **Start Game Control:** The \\\"Start Game\\\" button is **enabled only when a minimum of two (2) players** (including the Host) have joined. **Only the Host** can start the game. #### 2. Joining a Game (Player Flow) * **Code Entry:** The player enters the 4-digit room code. * **Game State Check (Crucial):** Before joining, the system must check the game's current status: * If the game has already started, the player is alerted (\\\"This game is already in progress.\\\") and the \\\"Join Game\\\" button is disabled. * **Name Entry:** If the game is joinable, the player is prompted for their **Name**. --- ### C. Pitching Phase (Sequential) * **Card Distribution:** When the game starts, each player is dealt **two unique cards** (one Product, one Audience). **No card should be reused** in the same room instance. * **Reveal:** The player's cards should be displayed with a **distinct reveal animation** (showing one card, then the next). * **Pitch Trigger:** Each player sees an **\\\"I Pitch\\\" button**. * **Turn Management:** Only one player can pitch at a time. * The first player to press **\\\"I Pitch\\\"** begins their turn. * For all other players, the screen displays \\\"$$Name$$ is pitching\\\" and a **2-minute countdown timer** (this timer must be made configurable later). * **Cycle End:** The phase concludes once **every player** has completed their pitch. --- ### D. Voting Phase (Anonymous) * **Transition:** The screen changes to the **Voting view**. * **Voting:** Each player can cast **one anonymous vote** for **one other player's pitch**. Players **cannot vote for themselves**. --- ### E. Winner Reveal and Resolution * **Reveal:** Once all votes are cast, the winner(s) are revealed. * **Winner Display:** The winning pitch is displayed with an appropriate animation. * **Tie Handling:** * If a tie occurs (multiple players share the highest vote count), a message like **\\\"It's a Tie!\\\"** is displayed. * The animation must then showcase all tied winners/pitches. * **Game End Options:** * **\\\"Return Home\\\"** (Clears local state and navigates to the initial screen). * **\\\"Start New Game\\\"** (All players remain in the current room; the cards are re-drawn, and a new round begins immediately). --- ## III. Data and Technical Requirements ### A. Card Data * Card lists (products and audiences) must reside in an **external file** (e.g., `cards.json`) for easy modification. ### B. Persistent Storage (Firestore) and Cleanup * The app **MUST** use **persistent storage (Firestore)** to manage game state, players, and room codes. * **MANDATORY Database Cleanup Logic:** * **Zero Players Rule:** If the number of active players in a room drops to **zero**, the entire game entry **MUST be deleted immediately**. * **Inactivity Timeout:** If a game room remains empty (**zero active players**) for a configured inactivity timeout period (e.g., **15 minutes, configurable**), the corresponding database entry **MUST be deleted** to ensure data hygiene.\"}, {\"role\": \"user\", \"content\": \"This is amazing. However when pitching, it should not show a dialog. Just a message saying you're pitching and a button \\\"End now\\\". The players are playing in person in the same room.\"}]",
+  "output": {
+    "reasoning": "The test script follows the complete user journey through the 'Pitch Against Humanity' app, incorporating multi-user interactions, negative test cases, and explicit tab management. \n\n1.  **Resource Lifecycle:** The script starts by creating a 'Host' user (User 1), which establishes a game room. Subsequent players (User 2, User 3) then 'join' this created resource. This mirrors the Create -> Join lifecycle.\n2.  **Negative Tests:** \n    *   **Join Game Input Validation:** Before any successful join, the script tests the 'Join Game' button's disabled state for empty, short, and long codes. It also tests attempting to join a non-existent room code.\n    *   **Minimum Players:** The 'Start Game' button is verified to be disabled until the minimum player count (2) is met.\n    *   **Game In Progress:** A crucial negative test verifies that a player cannot join a game that has already started.\n    *   **Voting Restrictions:** Players are explicitly verified to not be able to vote for themselves.\n3.  **Tab Management:** Each user interaction is clearly demarcated by 'Open new tab for User X', 'Switch to tab X', and 'Close tab X' to maintain distinct user sessions.\n4.  **Atomic Steps:** Each step is a single, verifiable action (e.g., 'Click', 'Type', 'Verify', 'Locate').\n5.  **Implicit Edge Cases:** The test includes a tie scenario for voting, which is an implicit edge case for winner revelation. The backend cleanup rules (zero players, inactivity timeout) are noted as technical requirements not directly testable via UI.",
+    "ux_tasks": [
+      {
+        "number": 1,
+        "requirement": "User 1 (Host) must observe the 'Join Game' button in its initial disabled state.",
+        "steps": [
+          "Open new tab for User 1",
+          "Navigate to app URL",
+          "Verify 'Join Game' button is disabled"
+        ],
+        "acceptance_criteria": "The 'Join Game' button is visibly disabled."
+      },
+      {
+        "number": 2,
+        "requirement": "User 1 (Host) must attempt to enter an invalid 3-digit room code.",
+        "steps": [
+          "Locate the 4-digit code input field",
+          "Type '123' into the 4-digit code input field",
+          "Verify 'Join Game' button is disabled"
+        ],
+        "acceptance_criteria": "The 'Join Game' button remains disabled, and the input field shows 4 distinct cells."
+      },
+      {
+        "number": 3,
+        "requirement": "User 1 (Host) must attempt to enter an invalid 5-digit room code.",
+        "steps": [
+          "Clear the 4-digit code input field",
+          "Type '12345' into the 4-digit code input field",
+          "Verify 'Join Game' button is disabled"
+        ],
+        "acceptance_criteria": "The 'Join Game' button remains disabled."
+      },
+      {
+        "number": 4,
+        "requirement": "User 1 (Host) must create a new game.",
+        "steps": [
+          "Click 'Create Game'",
+          "Locate 'Name' input field",
+          "Locate 'Host' designation text",
+          "Scan for a unique 4-digit room code",
+          "Verify 'Start Game' button is disabled"
+        ],
+        "acceptance_criteria": "The 'Name' input field and 'Host' designation are displayed, a unique 4-digit room code is visible, and the 'Start Game' button is disabled."
+      },
+      {
+        "number": 5,
+        "requirement": "User 1 (Host) must enter their name.",
+        "steps": [
+          "Type 'Host Player' into the 'Name' input field",
+          "Scan for 'Host Player' in the lobby list",
+          "Verify 'Start Game' button is disabled"
+        ],
+        "acceptance_criteria": "The 'Start Game' button remains disabled, and the Host's name appears in the lobby."
+      },
+      {
+        "number": 6,
+        "requirement": "User 2 (Player) must observe the 'Join Game' button in its initial disabled state.",
+        "steps": [
+          "Open new tab for User 2",
+          "Navigate to app URL",
+          "Verify 'Join Game' button is disabled",
+          "Switch to tab 1"
+        ],
+        "acceptance_criteria": "The 'Join Game' button is visibly disabled."
+      },
+      {
+        "number": 7,
+        "requirement": "User 2 (Player) must attempt to join a non-existent game.",
+        "steps": [
+          "Switch to tab 2",
+          "Type '9999' into the 4-digit code input field",
+          "Verify 'Join Game' button is enabled",
+          "Click 'Join Game'",
+          "Scan for alert message 'Game not found.' (or equivalent)",
+          "Locate and close the alert message",
+          "Verify 'Join Game' button is disabled"
+        ],
+        "acceptance_criteria": "An alert message 'Game not found.' or similar appears, and the 'Join Game' button remains disabled."
+      },
+      {
+        "number": 8,
+        "requirement": "User 2 (Player) must enter the valid 4-digit room code.",
+        "steps": [
+          "Switch to tab 1",
+          "Scan for the displayed 4-digit room code and store it (e.g., 'roomCode')",
+          "Switch to tab 2",
+          "Clear the 4-digit code input field",
+          "Type 'roomCode' into the 4-digit code input field",
+          "Verify 'Join Game' button is enabled"
+        ],
+        "acceptance_criteria": "The 'Join Game' button becomes enabled."
+      },
+      {
+        "number": 9,
+        "requirement": "User 2 (Player) must click 'Join Game'.",
+        "steps": [
+          "Click 'Join Game'",
+          "Locate 'Name' input field"
+        ],
+        "acceptance_criteria": "The 'Name' input field is displayed for User 2."
+      },
+      {
+        "number": 10,
+        "requirement": "User 2 (Player) must enter their name and confirm that User 1 (Host) sees them.",
+        "steps": [
+          "Type 'Player Two' into the 'Name' input field",
+          "Switch to tab 1",
+          "Scan for 'Player Two' in the lobby list",
+          "Verify 'Start Game' button is enabled"
+        ],
+        "acceptance_criteria": "User 2's name ('Player Two') is displayed in the lobby list on User 1's screen, and the 'Start Game' button for User 1 is now enabled."
+      },
+      {
+        "number": 11,
+        "requirement": "User 3 (Player) must join the game.",
+        "steps": [
+          "Open new tab for User 3",
+          "Navigate to app URL",
+          "Type 'roomCode' into the 4-digit code input field",
+          "Click 'Join Game'",
+          "Locate 'Name' input field"
+        ],
+        "acceptance_criteria": "User 3's 'Name' input field is displayed."
+      },
+      {
+        "number": 12,
+        "requirement": "User 3 (Player) must enter their name and confirm that User 1 (Host) sees them.",
+        "steps": [
+          "Type 'Player Three' into the 'Name' input field",
+          "Switch to tab 1",
+          "Scan for 'Player Three' in the lobby list"
+        ],
+        "acceptance_criteria": "User 3's name ('Player Three') is displayed in the lobby list on User 1's screen."
+      },
+      {
+        "number": 13,
+        "requirement": "User 1 (Host) must start the game.",
+        "steps": [
+          "Click 'Start Game'",
+          "Verify 'Start Game' button is no longer visible",
+          "Verify reveal animation for cards on User 1's screen",
+          "Scan for two unique cards on User 1's screen",
+          "Scan for 'I Pitch' button on User 1's screen",
+          "Switch to tab 2",
+          "Verify reveal animation for cards on User 2's screen",
+          "Scan for two unique cards on User 2's screen (different from User 1's)",
+          "Scan for 'I Pitch' button on User 2's screen",
+          "Switch to tab 3",
+          "Verify reveal animation for cards on User 3's screen",
+          "Scan for two unique cards on User 3's screen (different from User 1 and User 2's)",
+          "Scan for 'I Pitch' button on User 3's screen",
+          "Switch to tab 1"
+        ],
+        "acceptance_criteria": "All players (User 1, User 2, User 3) transition to the pitching phase, each seeing their unique cards with a reveal animation and an 'I Pitch' button."
+      },
+      {
+        "number": 14,
+        "requirement": "User 1 (Host) must initiate their pitch.",
+        "steps": [
+          "Click 'I Pitch'",
+          "Scan for message 'You are pitching'",
+          "Scan for 'End now' button",
+          "Switch to tab 2",
+          "Scan for message 'Host Player is pitching'",
+          "Scan for a 2-minute countdown timer",
+          "Verify 'I Pitch' button is disabled",
+          "Switch to tab 3",
+          "Scan for message 'Host Player is pitching'",
+          "Scan for a 2-minute countdown timer",
+          "Verify 'I Pitch' button is disabled",
+          "Switch to tab 1"
+        ],
+        "acceptance_criteria": "User 1's screen displays 'You are pitching' and an 'End now' button. User 2's and User 3's screens display 'Host Player is pitching' and a 2-minute countdown timer, with their 'I Pitch' buttons disabled."
+      },
+      {
+        "number": 15,
+        "requirement": "User 1 (Host) must end their pitch.",
+        "steps": [
+          "Click 'End now'",
+          "Verify 'You are pitching' message is no longer displayed",
+          "Verify 'End now' button is no longer displayed",
+          "Switch to tab 2",
+          "Verify 'I Pitch' button is enabled",
+          "Switch to tab 3",
+          "Verify 'I Pitch' button is enabled",
+          "Switch to tab 2"
+        ],
+        "acceptance_criteria": "User 1's screen no longer shows 'You are pitching'. The 'I Pitch' button becomes enabled for User 2 and User 3. User 2's screen should show their own 'I Pitch' button enabled."
+      },
+      {
+        "number": 16,
+        "requirement": "User 2 (Player) must initiate their pitch.",
+        "steps": [
+          "Click 'I Pitch'",
+          "Scan for message 'You are pitching'",
+          "Scan for 'End now' button",
+          "Switch to tab 1",
+          "Scan for message 'Player Two is pitching'",
+          "Scan for a 2-minute countdown timer",
+          "Verify 'I Pitch' button is disabled",
+          "Switch to tab 3",
+          "Scan for message 'Player Two is pitching'",
+          "Scan for a 2-minute countdown timer",
+          "Verify 'I Pitch' button is disabled",
+          "Switch to tab 2"
+        ],
+        "acceptance_criteria": "User 2's screen displays 'You are pitching' and an 'End now' button. User 1's and User 3's screens display 'Player Two is pitching' and a 2-minute countdown timer, with their 'I Pitch' buttons disabled."
+      },
+      {
+        "number": 17,
+        "requirement": "User 2 (Player) must end their pitch.",
+        "steps": [
+          "Click 'End now'",
+          "Verify 'You are pitching' message is no longer displayed",
+          "Verify 'End now' button is no longer displayed",
+          "Switch to tab 1",
+          "Verify 'I Pitch' button is enabled",
+          "Switch to tab 3",
+          "Verify 'I Pitch' button is enabled",
+          "Switch to tab 3"
+        ],
+        "acceptance_criteria": "User 2's screen no longer shows 'You are pitching'. The 'I Pitch' button becomes enabled for User 1 and User 3. User 3's screen should show their own 'I Pitch' button enabled."
+      },
+      {
+        "number": 18,
+        "requirement": "User 3 (Player) must initiate their pitch.",
+        "steps": [
+          "Click 'I Pitch'",
+          "Scan for message 'You are pitching'",
+          "Scan for 'End now' button",
+          "Switch to tab 1",
+          "Scan for message 'Player Three is pitching'",
+          "Scan for a 2-minute countdown timer",
+          "Verify 'I Pitch' button is disabled",
+          "Switch to tab 2",
+          "Scan for message 'Player Three is pitching'",
+          "Scan for a 2-minute countdown timer",
+          "Verify 'I Pitch' button is disabled",
+          "Switch to tab 3"
+        ],
+        "acceptance_criteria": "User 3's screen displays 'You are pitching' and an 'End now' button. User 1's and User 2's screens display 'Player Three is pitching' and a 2-minute countdown timer, with their 'I Pitch' buttons disabled."
+      },
+      {
+        "number": 19,
+        "requirement": "User 3 (Player) must end their pitch, concluding the pitching phase.",
+        "steps": [
+          "Click 'End now'",
+          "Verify 'You are pitching' message is no longer displayed",
+          "Verify 'End now' button is no longer displayed",
+          "Scan for voting view elements (e.g., list of pitches from other players) on User 3's screen",
+          "Verify User 3 cannot vote for their own pitch",
+          "Switch to tab 1",
+          "Scan for voting view elements on User 1's screen",
+          "Verify User 1 cannot vote for their own pitch",
+          "Switch to tab 2",
+          "Scan for voting view elements on User 2's screen",
+          "Verify User 2 cannot vote for their own pitch",
+          "Switch to tab 1"
+        ],
+        "acceptance_criteria": "All players (User 1, User 2, User 3) transition to the voting phase, each seeing all other players' pitches available for voting."
+      },
+      {
+        "number": 20,
+        "requirement": "User 1 (Host) must cast a vote for another player (Player Two).",
+        "steps": [
+          "Locate 'Player Two's Pitch' for voting",
+          "Click 'Vote for Player Two'"
+        ],
+        "acceptance_criteria": "User 1 has cast their vote for Player Two, and the voting UI reflects this (e.g., vote button disabled, confirmation message)."
+      },
+      {
+        "number": 21,
+        "requirement": "User 2 (Player) must cast a vote for another player (Player Three).",
+        "steps": [
+          "Switch to tab 2",
+          "Locate 'Player Three's Pitch' for voting",
+          "Click 'Vote for Player Three'"
+        ],
+        "acceptance_criteria": "User 2 has cast their vote for Player Three, and the voting UI reflects this."
+      },
+      {
+        "number": 22,
+        "requirement": "User 3 (Player) must cast a vote for another player (Host Player), concluding the voting phase.",
+        "steps": [
+          "Switch to tab 3",
+          "Locate 'Host Player's Pitch' for voting",
+          "Click 'Vote for Host Player'",
+          "Scan for 'It's a Tie!' message on User 3's screen",
+          "Scan for all three pitches being displayed as tied winners with an animation",
+          "Scan for 'Return Home' button",
+          "Scan for 'Start New Game' button",
+          "Switch to tab 1",
+          "Scan for 'It's a Tie!' message on User 1's screen",
+          "Scan for all three pitches being displayed as tied winners with an animation",
+          "Scan for 'Return Home' button",
+          "Scan for 'Start New Game' button",
+          "Switch to tab 2",
+          "Scan for 'It's a Tie!' message on User 2's screen",
+          "Scan for all three pitches being displayed as tied winners with an animation",
+          "Scan for 'Return Home' button",
+          "Scan for 'Start New Game' button",
+          "Switch to tab 1"
+        ],
+        "acceptance_criteria": "User 3 has cast their vote for Host Player. All players transition to the winner reveal phase, displaying 'It's a Tie!' and showcasing all three pitches as tied winners."
+      },
+      {
+        "number": 23,
+        "requirement": "User 1 (Host) must choose to start a new game from the same room.",
+        "steps": [
+          "Click 'Start New Game'",
+          "Verify reveal animation for new cards on User 1's screen",
+          "Scan for new, unique cards on User 1's screen",
+          "Scan for 'I Pitch' button on User 1's screen",
+          "Switch to tab 2",
+          "Verify reveal animation for new cards on User 2's screen",
+          "Scan for new, unique cards on User 2's screen",
+          "Scan for 'I Pitch' button on User 2's screen",
+          "Switch to tab 3",
+          "Verify reveal animation for new cards on User 3's screen",
+          "Scan for new, unique cards on User 3's screen",
+          "Scan for 'I Pitch' button on User 3's screen",
+          "Switch to tab 1"
+        ],
+        "acceptance_criteria": "All players are returned to the pitching phase with new, unique cards, and the 'I Pitch' button visible. The current room code persists."
+      },
+      {
+        "number": 24,
+        "requirement": "User 1 (Host) must initiate a pitch in the new round to advance the game state.",
+        "steps": [
+          "Click 'I Pitch'",
+          "Scan for message 'You are pitching'",
+          "Scan for 'End now' button"
+        ],
+        "acceptance_criteria": "User 1's screen displays 'You are pitching' and an 'End now' button."
+      },
+      {
+        "number": 25,
+        "requirement": "User 1 (Host) must end their pitch in the new round.",
+        "steps": [
+          "Click 'End now'",
+          "Verify 'You are pitching' message is no longer displayed",
+          "Verify 'End now' button is no longer displayed"
+        ],
+        "acceptance_criteria": "User 1's screen no longer shows 'You are pitching'. The 'I Pitch' button becomes enabled for other players."
+      },
+      {
+        "number": 26,
+        "requirement": "User 1 (Host) must choose 'Return Home' after a round to end the game for all players.",
+        "steps": [
+          "Click 'Return Home' (assuming the game progressed to an end-of-round state and this option is visible after pitching and voting)",
+          "Scan for 'Create Game' button on User 1's screen",
+          "Scan for empty 4-digit code input field on User 1's screen",
+          "Switch to tab 2",
+          "Scan for 'Create Game' button on User 2's screen",
+          "Scan for empty 4-digit code input field on User 2's screen",
+          "Switch to tab 3",
+          "Scan for 'Create Game' button on User 3's screen",
+          "Scan for empty 4-digit code input field on User 3's screen",
+          "Close tab 2",
+          "Close tab 3",
+          "Switch to tab 1"
+        ],
+        "acceptance_criteria": "All players (User 1, User 2, User 3) are navigated back to the initial 'Home' screen, with local game state cleared (i.e., no room code pre-filled)."
+      },
+      {
+        "number": 27,
+        "requirement": "User 1 (Host) must create a new game to set up for a negative test.",
+        "steps": [
+          "Click 'Create Game'",
+          "Locate 'Name' input field",
+          "Type 'Test Host' into the 'Name' input field",
+          "Scan for the displayed 4-digit room code and store it (e.g., 'roomCodeForNegativeTest')"
+        ],
+        "acceptance_criteria": "User 1's 'Name' input field and 'Host' designation are displayed, a unique 4-digit room code is visible, and the 'Start Game' button is disabled."
+      },
+      {
+        "number": 28,
+        "requirement": "User 2 (Player) must join the game to reach the minimum player count for starting.",
+        "steps": [
+          "Open new tab for User 2",
+          "Navigate to app URL",
+          "Type 'roomCodeForNegativeTest' into the 4-digit code input field",
+          "Click 'Join Game'",
+          "Type 'Negative Player' into the 'Name' input field",
+          "Switch to tab 1",
+          "Scan for 'Negative Player' in the lobby list",
+          "Verify 'Start Game' button is enabled"
+        ],
+        "acceptance_criteria": "User 2's name ('Negative Player') is displayed in the lobby list on User 1's screen, and the 'Start Game' button for User 1 is now enabled."
+      },
+      {
+        "number": 29,
+        "requirement": "User 1 (Host) must start the game.",
+        "steps": [
+          "Click 'Start Game'",
+          "Verify User 1 is in pitching phase (e.g., 'I Pitch' button visible)",
+          "Switch to tab 2",
+          "Verify User 2 is in pitching phase (e.g., 'I Pitch' button visible)",
+          "Switch to tab 1"
+        ],
+        "acceptance_criteria": "Both User 1 and User 2 transition to the pitching phase."
+      },
+      {
+        "number": 30,
+        "requirement": "User 3 (Player) must attempt to join a game that is already in progress.",
+        "steps": [
+          "Open new tab for User 3",
+          "Navigate to app URL",
+          "Type 'roomCodeForNegativeTest' into the 4-digit code input field",
+          "Verify 'Join Game' button is enabled",
+          "Click 'Join Game'",
+          "Scan for alert message 'This game is already in progress.'",
+          "Locate and close the alert message",
+          "Verify 'Join Game' button is disabled"
+        ],
+        "acceptance_criteria": "User 3's screen displays an alert 'This game is already in progress.' and the 'Join Game' button remains disabled."
+      },
+      {
+        "number": 31,
+        "requirement": "All users must close their tabs to reset the environment.",
+        "steps": [
+          "Close tab 1",
+          "Close tab 2",
+          "Close tab 3"
+        ],
+        "acceptance_criteria": "All open tabs are closed, and the browser is in a clean state."
+      }
+    ]
+  },
+  "dspy_prompt": {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Your input fields are:\n1. `conversation_log` (str): The raw conversation log or requirements text.\nYour output fields are:\n1. `output` (TestScriptOutput): The structured test script.\nAll interactions will be structured in the following way, with the appropriate values filled in.\n\n[[ ## conversation_log ## ]]\n{conversation_log}\n\n[[ ## output ## ]]\n{output}        # note: the value you produce must adhere to the JSON schema: {\"type\": \"object\", \"$defs\": {\"UXTask\": {\"type\": \"object\", \"properties\": {\"acceptance_criteria\": {\"type\": \"string\", \"description\": \"The specific visible outcome that confirms success.\", \"title\": \"Acceptance Criteria\"}, \"number\": {\"type\": \"integer\", \"description\": \"The sequence number of the task, starting from 1.\", \"title\": \"Number\"}, \"requirement\": {\"type\": \"string\", \"description\": \"The high-level requirement. MUST specify the Actor (e.g., 'User 1 (Host) must...').\", \"title\": \"Requirement\"}, \"steps\": {\"type\": \"array\", \"description\": \"A list of STRICTLY ATOMIC actions. Must start with verbs like: 'Locate', 'Click', 'Type', 'Verify', 'Wait', 'Scan', 'Switch', or 'Open'.\", \"items\": {\"type\": \"string\"}, \"title\": \"Steps\"}}, \"required\": [\"number\", \"requirement\", \"steps\", \"acceptance_criteria\"], \"title\": \"UXTask\"}}, \"properties\": {\"reasoning\": {\"type\": \"string\", \"description\": \"Step-back analysis: 1. Map Resource Lifecycle (Create -> Join). 2. Identify Negative Tests (errors/disabled states). 3. Plan Tab switching.\", \"title\": \"Reasoning\"}, \"ux_tasks\": {\"type\": \"array\", \"description\": \"The linear, executable list of UX tasks.\", \"items\": {\"$ref\": \"#/$defs/UXTask\"}, \"title\": \"Ux Tasks\"}}, \"required\": [\"reasoning\", \"ux_tasks\"], \"title\": \"TestScriptOutput\"}\n\n[[ ## completed ## ]]\nIn adhering to this structure, your objective is: \n        Translate a conversation log into a linear, executable QA test script for browser automation.\n        \n        CRITICAL CONSTRAINTS:\n        1. ATOMICITY: Steps must be single actions. Never combine actions (e.g., \"Login and Click\" is FORBIDDEN).\n           - BAD: \"Navigate to URL and login\"\n           - GOOD: \"Open new tab\", \"Navigate to URL\", \"Type 'user'\", \"Click 'Login'\"\n        2. NEGATIVE TESTING: Verify error states or disabled buttons BEFORE performing the successful action.\n        3. TAB MANAGEMENT: Explicitly manage state. Use \"Switch to tab 1\" or \"Open new tab for User 2\".\n        4. LIFECYCLE: A resource must be CREATED (User 1) before it can be JOINED (User 2).\n        5. IMPLICIT EDGE CASES: Beyond explicit requirements, infer what SHOULD fail based on common sense:\n           - If there's authentication, test accessing protected resources without logging in.\n           - If there are inputs with logical constraints, test invalid/impossible values.\n           - If there's authorization (roles/ownership), test actions by unauthorized users.\n           - If there's data validation, test boundary violations the app should reject."
+      },
+      {
+        "role": "user",
+        "content": "[[ ## conversation_log ## ]]\n[{\"role\": \"user\", \"content\": \"# Pitch Against Humanity App: Final Specification\\n\\nThis document details the complete functionality and user flow for the \\\"Pitch Against Humanity\\\" multi-player social game app.\\n\\n## I. Game Concept\\n\\nThe objective is for players to pitch a startup idea based on a combination of two randomized cards: a **Product card** and a **Target Audience card**. Pitches should be creative, outrageous, and compelling.\\n\\n## II. User Flow\\n### A. Initial Screen (Home) * **Create Game:** A button labeled \\\"Create Game\\\" starts the host flow. * **Join Game Input:** An input field for the **4-digit code** is provided. It should visually use **4 distinct cells** (like an OTP input) to guide the user. * **Join Game Button:** The button labeled \\\"Join Game\\\" must be **disabled until a valid 4-digit code is entered**. --- ### B. Game Setup and Joining #### 1. Creating a Game (Host Flow) * **Name & Host Designation:** The player is immediately prompted for their **Name** and is automatically designated as the **Host**. * **Room Code:** A **unique 4-digit room code** is generated and prominently displayed. * **Lobby:** The Host sees a **real-time list** of all players who have joined the room. * **Start Game Control:** The \\\"Start Game\\\" button is **enabled only when a minimum of two (2) players** (including the Host) have joined. **Only the Host** can start the game. #### 2. Joining a Game (Player Flow) * **Code Entry:** The player enters the 4-digit room code. * **Game State Check (Crucial):** Before joining, the system must check the game's current status: * If the game has already started, the player is alerted (\\\"This game is already in progress.\\\") and the \\\"Join Game\\\" button is disabled. * **Name Entry:** If the game is joinable, the player is prompted for their **Name**. --- ### C. Pitching Phase (Sequential) * **Card Distribution:** When the game starts, each player is dealt **two unique cards** (one Product, one Audience). **No card should be reused** in the same room instance. * **Reveal:** The player's cards should be displayed with a **distinct reveal animation** (showing one card, then the next). * **Pitch Trigger:** Each player sees an **\\\"I Pitch\\\" button**. * **Turn Management:** Only one player can pitch at a time. * The first player to press **\\\"I Pitch\\\"** begins their turn. * For all other players, the screen displays \\\"$$Name$$ is pitching\\\" and a **2-minute countdown timer** (this timer must be made configurable later). * **Cycle End:** The phase concludes once **every player** has completed their pitch. --- ### D. Voting Phase (Anonymous) * **Transition:** The screen changes to the **Voting view**. * **Voting:** Each player can cast **one anonymous vote** for **one other player's pitch**. Players **cannot vote for themselves**. --- ### E. Winner Reveal and Resolution * **Reveal:** Once all votes are cast, the winner(s) are revealed. * **Winner Display:** The winning pitch is displayed with an appropriate animation. * **Tie Handling:** * If a tie occurs (multiple players share the highest vote count), a message like **\\\"It's a Tie!\\\"** is displayed. * The animation must then showcase all tied winners/pitches. * **Game End Options:** * **\\\"Return Home\\\"** (Clears local state and navigates to the initial screen). * **\\\"Start New Game\\\"** (All players remain in the current room; the cards are re-drawn, and a new round begins immediately). --- ## III. Data and Technical Requirements ### A. Card Data * Card lists (products and audiences) must reside in an **external file** (e.g., `cards.json`) for easy modification. ### B. Persistent Storage (Firestore) and Cleanup * The app **MUST** use **persistent storage (Firestore)** to manage game state, players, and room codes. * **MANDATORY Database Cleanup Logic:** * **Zero Players Rule:** If the number of active players in a room drops to **zero**, the entire game entry **MUST be deleted immediately**. * **Inactivity Timeout:** If a game room remains empty (**zero active players**) for a configured inactivity timeout period (e.g., **15 minutes, configurable**), the corresponding database entry **MUST be deleted** to ensure data hygiene.\"}, {\"role\": \"user\", \"content\": \"This is amazing. However when pitching, it should not show a dialog. Just a message saying you're pitching and a button \\\"End now\\\". The players are playing in person in the same room.\"}]\n\nRespond with the corresponding output fields, starting with the field `[[ ## output ## ]]` (must be formatted as a valid Python TestScriptOutput), and then ending with the marker for `[[ ## completed ## ]]`."
+      }
+    ],
+    "model": "gemini/gemini-2.5-flash"
+  },
+  "timestamp": "2025-12-10T16:07:01.841352"
+}

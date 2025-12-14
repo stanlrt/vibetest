@@ -5,6 +5,7 @@ from datetime import datetime
 
 from agent1.agent1 import extract_ux_tasks
 from agent2.agent2 import run_browser_test
+from agent3.agent3 import group_test_results
 from shared.experiment_logger import log_experiment
 
 
@@ -91,6 +92,30 @@ async def run_pipeline(
     stage2_duration = time.time() - stage2_start
     print(f"   ✓ Browser tests complete ({stage2_duration:.1f}s)")
 
+    # === Stage 3: Group Test Results ===
+    print("\n📊 Stage 3: Grouping test results...")
+    stage3_start = time.time()
+
+    try:
+        test_results_grouped = group_test_results(
+            agent1_output=ux_tasks,
+            agent2_output=test_results,
+            model_name=model_name,
+            disable_cache=disable_cache
+        )
+        # Convert Pydantic model to dict for JSON serialization
+        test_results_dict = test_results_grouped.model_dump()
+
+        grouped_count = test_results_grouped.grouped_tests_count
+        original_count = test_results_grouped.original_atomic_tasks
+        print(
+            f"   ✓ Grouped {original_count} atomic tasks into {grouped_count} logical tests")
+    except Exception as e:
+        print(f"   ⚠️  Agent 3 grouping failed: {e}")
+        test_results_dict = None
+
+    stage3_duration = time.time() - stage3_start
+
     # === Final Logging ===
     total_duration = time.time() - total_start
 
@@ -117,11 +142,17 @@ async def run_pipeline(
                 "success": test_results.get("success", False),
                 "time_seconds": round(stage2_duration, 2),
             },
+            "agent3": {
+                "grouped_tests": test_results_dict.get("grouped_tests_count", 0) if test_results_dict else 0,
+                "original_atomic_tasks": test_results_dict.get("original_atomic_tasks", 0) if test_results_dict else 0,
+                "time_seconds": round(stage3_duration, 2),
+            },
         },
         "transcript": transcript_data,
         "dspy_prompt": dspy_prompt,
         "agent1_output": ux_tasks,
         "agent2_output": test_results,
+        "test_results": test_results_dict,
     }
 
     # Use shared logging function (only if enabled)
@@ -136,9 +167,10 @@ async def run_pipeline(
         )
 
     print(f"\n⏱️  Timing Summary:")
-    print(f"   Stage 1 (UX Extraction): {stage1_duration:.1f}s")
-    print(f"   Stage 2 (Browser Test):  {stage2_duration:.1f}s")
-    print(f"   Total:                   {total_duration:.1f}s")
+    print(f"   Stage 1 (UX Extraction):  {stage1_duration:.1f}s")
+    print(f"   Stage 2 (Browser Test):   {stage2_duration:.1f}s")
+    print(f"   Stage 3 (Group Results):  {stage3_duration:.1f}s")
+    print(f"   Total:                    {total_duration:.1f}s")
 
     return result
 
