@@ -57,7 +57,7 @@ The full pipeline: extracts UX requirements from a test case and tests them in a
 
 ```bash
 # Recommended: Use unified test case file (contains URL and transcript)
-uv run vibetester -uc pitch-humanity-simple.json
+uv run vibetester -tc pitch-humanity-simple.json
 
 # Legacy: Separate transcript and URL
 uv run vibetester -t my_transcript.json -u https://myapp.example.com
@@ -71,7 +71,7 @@ This will:
 4. Group atomic test results into meaningful scenarios using Agent 3
 5. Save results to `./data/results/` (when `--logging` is enabled)
 
-Run `uv run vibetester --help` for all options.
+Run `uv run vibetester --help` for all options, or refer to the [dedicated README](./packages/vibetester/README.md#arguments).
 
 ### Agent 1 (Standalone)
 
@@ -79,7 +79,7 @@ Run `uv run vibetester --help` for all options.
 uv run agent1
 ```
 
-Run `uv run agent1 --help` for all options.
+Run `uv run agent1 --help` for all options, or refer to the [dedicated README](./packages/agent1/README.md#arguments).
 
 ### Agent 2 (Standalone)
 
@@ -87,7 +87,7 @@ Run `uv run agent1 --help` for all options.
 uv run agent2
 ```
 
-Run `uv run agent2 --help` for all options.
+Run `uv run agent2 --help` for all options, or refer to the [dedicated README](./packages/agent2/README.md#arguments).
 
 > [!NOTE]
 > Avoid interacting with the browser window spawned by Agent 2 to not disrupt the agent.

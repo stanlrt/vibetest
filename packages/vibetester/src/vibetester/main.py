@@ -18,7 +18,7 @@ def parse_args():
 
     # New unified test case argument
     parser.add_argument(
-        "--use-case", "-uc",
+        "--test-case", "-tc",
         help=f"Test case JSON filename containing 'url' and 'transcript' keys (looked up in {DEFAULT_TEST_CASES_DIR}/)"
     )
 
@@ -248,14 +248,15 @@ async def main():
     tool_name: str | None = None
 
     # Validate argument combinations
-    if args.use_case:
-        # New unified mode: -uc provides both URL and transcript
+    if args.test_case:
+        # New unified mode: -tc provides both URL and transcript
         if args.url or args.transcript:
             print(
-                "❌ Error: --use-case (-uc) cannot be combined with --url (-u) or --transcript (-t)")
+                "❌ Error: --test-case (-tc) cannot be combined with --url (-u) or --transcript (-t)")
             return 1
 
-        test_case_path = resolve_test_case_path(args.use_case, args.full_paths)
+        test_case_path = resolve_test_case_path(
+            args.test_case, args.full_paths)
         try:
             url, transcript, tool_name = load_test_case(test_case_path)
             transcript_name = test_case_path.stem
@@ -266,7 +267,7 @@ async def main():
         # Legacy mode: -u and -t required separately
         if not args.url or not args.transcript:
             print(
-                "❌ Error: Either --use-case (-uc) OR both --url (-u) and --transcript (-t) are required")
+                "❌ Error: Either --test-case (-tc) OR both --url (-u) and --transcript (-t) are required")
             return 1
 
         url = args.url
@@ -285,10 +286,10 @@ async def main():
     enable_logging = is_logging_enabled(args.logging)
 
     # Determine source name for display
-    source_path = test_case_path if args.use_case else transcript_path
+    source_path = test_case_path if args.test_case else transcript_path
 
     print("🚀 Starting vibetester")
-    if args.use_case:
+    if args.test_case:
         print(f"   Test Case: {source_path}")
     else:
         print(f"   Transcript: {source_path}")

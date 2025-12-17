@@ -104,14 +104,14 @@ Archived experiment files from earlier development. Kept for reference.
 
 ```bash
 # Recommended: Use unified test case file
-uv run vibetester -uc pitch-humanity-simple.json
+uv run vibetester -tc pitch-humanity-simple.json
 
 # Legacy: Separate transcript and URL
 uv run vibetester -t sample_habit_tracker.json -u https://your-app.com
 
 # With all options
 uv run vibetester \
-  --use-case pitch-humanity-simple.json \
+  --test-case pitch-humanity-simple.json \
   --model models/gemini-2.0-flash \
   --headless
 

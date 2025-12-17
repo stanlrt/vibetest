@@ -20,13 +20,13 @@ uv sync
 
 ## Usage
 
-### Recommended: Unified Test Case (`-uc`)
+### Recommended: Unified Test Case (`-tc`)
 
 The simplest way to run tests - use a single JSON file containing both the URL and transcript:
 
 ```bash
 # Just specify the test case filename - it will look in ./data/test-cases/
-uv run vibetester -uc pitch-humanity-simple.json
+uv run vibetester -tc pitch-humanity-simple.json
 ```
 
 ### Legacy: Separate URL and Transcript (`-u` and `-t`)
@@ -41,7 +41,7 @@ uv run vibetester -t pitch-humanity-simple.json -u https://myapp.example.com
 
 ```bash
 uv run vibetester \
-  --use-case pitch-humanity-simple.json \
+  --test-case pitch-humanity-simple.json \
   --model models/gemini-2.5-flash \
   --headless \
   --no-cache
@@ -69,7 +69,7 @@ uv run vibetester \
 
 | Argument             | Required | Default                   | Description                                                               |
 | -------------------- | -------- | ------------------------- | ------------------------------------------------------------------------- |
-| `--use-case`, `-uc`  | ✅*       | —                         | Test case JSON file with `url` and `transcript` (in `./data/test-cases/`) |
+| `--test-case`, `-tc` | ✅*       | —                         | Test case JSON file with `url` and `transcript` (in `./data/test-cases/`) |
 | `--transcript`, `-t` | ✅*       | —                         | [Legacy] Transcript filename (in `./data/test-cases/`) or full path       |
 | `--url`, `-u`        | ✅*       | —                         | [Legacy] Web app URL to test                                              |
 | `--model`, `-m`      | ❌        | `models/gemini-2.5-flash` | LLM model for Agent 1                                                     |
@@ -79,7 +79,7 @@ uv run vibetester \
 | `--logging`          | ❌        | `False`                   | Enable logging (also via `LOGGING=true` env)                              |
 | `--no-cache`         | ❌        | `False`                   | Disable DSPy caching for agent 1                                          |
 
-*Either `--use-case` OR both `--url` and `--transcript` are required.
+*Either `--test-case` OR both `--url` and `--transcript` are required.
 
 ## Test Case Format (Recommended)
 
