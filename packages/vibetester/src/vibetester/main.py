@@ -33,8 +33,8 @@ def parse_args():
     )
     parser.add_argument(
         "--model", "-m",
-        default="models/gemini-2.5-flash",
-        help="LLM model for UX extraction (default: models/gemini-2.5-flash)"
+        default="models/gemini-3-flash-preview",
+        help="LLM model for UX extraction (default: models/gemini-3-flash-preview)"
     )
     parser.add_argument(
         "--headless",

@@ -42,7 +42,7 @@ uv run vibetester -t pitch-humanity-simple.json -u https://myapp.example.com
 ```bash
 uv run vibetester \
   --test-case pitch-humanity-simple.json \
-  --model models/gemini-2.5-flash \
+  --model models/gemini-3-flash-preview \
   --headless \
   --no-cache
 ```
@@ -67,17 +67,17 @@ uv run vibetester \
 
 ### Arguments
 
-| Argument             | Required | Default                   | Description                                                               |
-| -------------------- | -------- | ------------------------- | ------------------------------------------------------------------------- |
-| `--test-case`, `-tc` | ✅*       | —                         | Test case JSON file with `url` and `transcript` (in `./data/test-cases/`) |
-| `--transcript`, `-t` | ✅*       | —                         | [Legacy] Transcript filename (in `./data/test-cases/`) or full path       |
-| `--url`, `-u`        | ✅*       | —                         | [Legacy] Web app URL to test                                              |
-| `--model`, `-m`      | ❌        | `models/gemini-2.5-flash` | LLM model for Agent 1                                                     |
-| `--headless`         | ❌        | `False`                   | Run browser in headless mode                                              |
-| `--output`, `-o`     | ❌        | `./data/results/`         | Output directory for logs                                                 |
-| `--full-paths`       | ❌        | `False`                   | Treat `--transcript` and `--output` as full paths                         |
-| `--logging`          | ❌        | `False`                   | Enable logging (also via `LOGGING=true` env)                              |
-| `--no-cache`         | ❌        | `False`                   | Disable DSPy caching for agent 1                                          |
+| Argument             | Required | Default                         | Description                                                               |
+| -------------------- | -------- | ------------------------------- | ------------------------------------------------------------------------- |
+| `--test-case`, `-tc` | ✅*       | —                               | Test case JSON file with `url` and `transcript` (in `./data/test-cases/`) |
+| `--transcript`, `-t` | ✅*       | —                               | [Legacy] Transcript filename (in `./data/test-cases/`) or full path       |
+| `--url`, `-u`        | ✅*       | —                               | [Legacy] Web app URL to test                                              |
+| `--model`, `-m`      | ❌        | `models/gemini-3-flash-preview` | LLM model for Agent 1                                                     |
+| `--headless`         | ❌        | `False`                         | Run browser in headless mode                                              |
+| `--output`, `-o`     | ❌        | `./data/results/`               | Output directory for logs                                                 |
+| `--full-paths`       | ❌        | `False`                         | Treat `--transcript` and `--output` as full paths                         |
+| `--logging`          | ❌        | `False`                         | Enable logging (also via `LOGGING=true` env)                              |
+| `--no-cache`         | ❌        | `False`                         | Disable DSPy caching for agent 1                                          |
 
 *Either `--test-case` OR both `--url` and `--transcript` are required.
 

@@ -15,7 +15,7 @@ load_dotenv()
 def group_test_results(
     agent1_output: dict[str, Any],
     agent2_output: dict[str, Any],
-    model_name: str = "models/gemini-2.5-flash",
+    model_name: str = "models/gemini-3-flash-preview",
     disable_cache: bool = False
 ) -> TestResults:
     """
