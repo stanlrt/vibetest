@@ -68,7 +68,7 @@ This will:
 3. Test them in a browser using Agent 2
 4. Save results to `./data/results/` (when `--logging` is enabled)
 
-Run `uv run vibetester --help` for all options.
+Run `uv run vibetester --help` for all options, or refer to the [dedicated README](./packages/vibetester/README.md).
 
 ### Agent 1 (Standalone)
 
@@ -76,7 +76,7 @@ Run `uv run vibetester --help` for all options.
 uv run agent1
 ```
 
-Run `uv run agent1 --help` for all options.
+Run `uv run agent1 --help` for all options, or refer to the [dedicated README](./packages/agent1/README.md).
 
 ### Agent 2 (Standalone)
 
@@ -84,7 +84,7 @@ Run `uv run agent1 --help` for all options.
 uv run agent2
 ```
 
-Run `uv run agent2 --help` for all options.
+Run `uv run agent2 --help` for all options, or refer to the [dedicated README](./packages/agent2/README.md).
 
 > [!NOTE]
 > Avoid interacting with the browser window spawned by Agent 2 to not disrupt the agent.
