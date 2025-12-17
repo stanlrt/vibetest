@@ -111,7 +111,7 @@ uv run vibetester -t sample_habit_tracker.json -u https://your-app.com
 
 # With all options
 uv run vibetester \
-  -test-case pitch-humanity-simple.json \
+  --test-case pitch-humanity-simple.json \
   --model models/gemini-2.0-flash \
   --headless
 

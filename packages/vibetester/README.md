@@ -40,7 +40,7 @@ uv run vibetester -t pitch-humanity-simple.json -u https://myapp.example.com
 
 ```bash
 uv run vibetester \
-  -test-case pitch-humanity-simple.json \
+  --test-case pitch-humanity-simple.json \
   --model models/gemini-2.5-flash \
   --headless
 ```
@@ -67,7 +67,7 @@ uv run vibetester \
 
 | Argument             | Required | Default                   | Description                                                               |
 | -------------------- | -------- | ------------------------- | ------------------------------------------------------------------------- |
-| `-test-case`, `-tc`  | ✅*       | —                         | Test case JSON file with `url` and `transcript` (in `./data/test-cases/`) |
+| `--test-case`, `-tc` | ✅*       | —                         | Test case JSON file with `url` and `transcript` (in `./data/test-cases/`) |
 | `--transcript`, `-t` | ✅*       | —                         | [Legacy] Transcript filename (in `./data/test-cases/`) or full path       |
 | `--url`, `-u`        | ✅*       | —                         | [Legacy] Web app URL to test                                              |
 | `--model`, `-m`      | ❌        | `models/gemini-2.5-flash` | LLM model for Agent 1                                                     |
@@ -76,7 +76,7 @@ uv run vibetester \
 | `--full-paths`       | ❌        | `False`                   | Treat `--transcript` and `--output` as full paths                         |
 | `--logging`          | ❌        | `False`                   | Enable logging (also via `LOGGING=true` env)                              |
 
-*Either `-test-case` OR both `--url` and `--transcript` are required.
+*Either `--test-case` OR both `--url` and `--transcript` are required.
 
 ## Test Case Format (Recommended)
 

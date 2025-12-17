@@ -18,7 +18,7 @@ def parse_args():
 
     # New unified test case argument
     parser.add_argument(
-        "-test-case", "-tc",
+        "--test-case", "-tc",
         help=f"Test case JSON filename containing 'url' and 'transcript' keys (looked up in {DEFAULT_TEST_CASES_DIR}/)"
     )
 
@@ -247,7 +247,7 @@ async def main():
         # New unified mode: -tc provides both URL and transcript
         if args.url or args.transcript:
             print(
-                "❌ Error: -test-case (-tc) cannot be combined with --url (-u) or --transcript (-t)")
+                "❌ Error: --test-case (-tc) cannot be combined with --url (-u) or --transcript (-t)")
             return 1
 
         test_case_path = resolve_test_case_path(
@@ -262,7 +262,7 @@ async def main():
         # Legacy mode: -u and -t required separately
         if not args.url or not args.transcript:
             print(
-                "❌ Error: Either -test-case (-tc) OR both --url (-u) and --transcript (-t) are required")
+                "❌ Error: Either --test-case (-tc) OR both --url (-u) and --transcript (-t) are required")
             return 1
 
         url = args.url
