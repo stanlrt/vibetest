@@ -55,7 +55,7 @@ The full pipeline: extracts UX requirements from a test case and tests them in a
 
 ```bash
 # Recommended: Use unified test case file (contains URL and transcript)
-uv run vibetester -uc pitch-humanity-simple.json
+uv run vibetester -tc pitch-humanity-simple.json
 
 # Legacy: Separate transcript and URL
 uv run vibetester -t my_transcript.json -u https://myapp.example.com
