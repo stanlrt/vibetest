@@ -13,18 +13,20 @@ Q-NCLC/
 └── packages/
     ├── agent1/        # UX task extraction from conversations
     ├── agent2/        # Browser-based UX testing
-    ├── vibetester/    # Pipeline orchestrating Agent 1 + Agent 2
+    ├── agent3/        # Test results grouping and analysis
+    ├── vibetester/    # Pipeline orchestrating Agent 1 + Agent 2 + Agent 3
     └── shared/        # Shared utilities (logging, LLM providers)
 ```
 
 ## System Overview
 
-The system consists of two main agents working in a pipeline:
+The system consists of three agents working in a pipeline:
 
-- **Agent 1 (Requirement Extractor)**: Analyzes natural language conversations between a user and a coding assistant to extract formal testing requirements. It produces a structured list of test steps.
-- **Agent 2 (Browser Tester)**: Takes the test steps from Agent 1 and executes them in a real browser environment to verify the application's behavior. It acts as an automated user and generates a test report.
+- **Agent 1 (Requirement Extractor)**: Analyzes natural language conversations between a user and a coding assistant to extract formal testing requirements. It produces a structured list of atomic test steps.
+- **Agent 2 (Browser Tester)**: Takes the test steps from Agent 1 and executes them in a real browser environment to verify the application's behavior. It acts as an automated user and generates individual test results for each atomic step.
+- **Agent 3 (Test Grouper)**: Groups related atomic test steps from Agent 1 and their results from Agent 2 into meaningful, cohesive test scenarios. It identifies test types (validation, functional, integration, workflow) and provides aggregated reporting.
 
-Together, they form the **Vibetester** pipeline, testing the application's behavior based on the user's intent.
+Together, they form the **Vibetester** pipeline, testing the application's behavior based on the user's intent and providing structured test reports.
 
 ## Prerequisites
 
@@ -66,7 +68,8 @@ This will:
 1. Load the test case from `./data/test-cases/pitch-humanity-simple.json`
 2. Extract UX requirements using Agent 1
 3. Test them in a browser using Agent 2
-4. Save results to `./data/results/` (when `--logging` is enabled)
+4. Group atomic test results into meaningful scenarios using Agent 3
+5. Save results to `./data/results/` (when `--logging` is enabled)
 
 Run `uv run vibetester --help` for all options, or refer to the [dedicated README](./packages/vibetester/README.md#arguments).
 
