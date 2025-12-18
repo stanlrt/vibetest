@@ -6,8 +6,9 @@ End-to-end UX testing pipeline that orchestrates Agent 1 and Agent 2.
 
 **vibetester** takes a test case (containing a chat transcript and URL) or separate transcript + URL, then:
 
-1. **Agent 1**: Extracts UX requirements from the conversation
-2. **Agent 2**: Tests those requirements in a real browser
+1. **Agent 1**: Extracts UX requirements from the conversation into atomic test steps
+2. **Agent 2**: Tests those requirements in a real browser and generates individual results
+3. **Agent 3**: Groups related atomic tests into meaningful test scenarios with aggregated results
 
 ## Installation
 
@@ -41,8 +42,9 @@ uv run vibetester -t pitch-humanity-simple.json -u https://myapp.example.com
 ```bash
 uv run vibetester \
   --test-case pitch-humanity-simple.json \
-  --model models/gemini-2.5-flash \
-  --headless
+  --model models/gemini-3-flash-preview \
+  --headless \
+  --no-cache
 ```
 
 ### Using Full Paths
@@ -65,16 +67,17 @@ uv run vibetester \
 
 ### Arguments
 
-| Argument             | Required | Default                   | Description                                                               |
-| -------------------- | -------- | ------------------------- | ------------------------------------------------------------------------- |
-| `--test-case`, `-tc` | ✅*       | —                         | Test case JSON file with `url` and `transcript` (in `./data/test-cases/`) |
-| `--transcript`, `-t` | ✅*       | —                         | [Legacy] Transcript filename (in `./data/test-cases/`) or full path       |
-| `--url`, `-u`        | ✅*       | —                         | [Legacy] Web app URL to test                                              |
-| `--model`, `-m`      | ❌        | `models/gemini-2.5-flash` | LLM model for Agent 1                                                     |
-| `--headless`         | ❌        | `False`                   | Run browser in headless mode                                              |
-| `--output`, `-o`     | ❌        | `./data/results/`         | Output directory for logs                                                 |
-| `--full-paths`       | ❌        | `False`                   | Treat `--transcript` and `--output` as full paths                         |
-| `--logging`          | ❌        | `False`                   | Enable logging (also via `LOGGING=true` env)                              |
+| Argument             | Required | Default                         | Description                                                               |
+| -------------------- | -------- | ------------------------------- | ------------------------------------------------------------------------- |
+| `--test-case`, `-tc` | ✅*       | —                               | Test case JSON file with `url` and `transcript` (in `./data/test-cases/`) |
+| `--transcript`, `-t` | ✅*       | —                               | [Legacy] Transcript filename (in `./data/test-cases/`) or full path       |
+| `--url`, `-u`        | ✅*       | —                               | [Legacy] Web app URL to test                                              |
+| `--model`, `-m`      | ❌        | `models/gemini-3-flash-preview` | LLM model for Agent 1                                                     |
+| `--headless`         | ❌        | `False`                         | Run browser in headless mode                                              |
+| `--output`, `-o`     | ❌        | `./data/results/`               | Output directory for logs                                                 |
+| `--full-paths`       | ❌        | `False`                         | Treat `--transcript` and `--output` as full paths                         |
+| `--logging`          | ❌        | `False`                         | Enable logging (also via `LOGGING=true` env)                              |
+| `--no-cache`         | ❌        | `False`                         | Disable DSPy caching for agent 1                                          |
 
 *Either `--test-case` OR both `--url` and `--transcript` are required.
 

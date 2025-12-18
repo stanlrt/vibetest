@@ -5,15 +5,16 @@ Agent 1 extracts formal requirements from a natural language conversation betwee
 ## Example usage
 
 ```bash
-uv run agent1 --model models/gemini-2.5-flash --logging
+uv run agent1 --model models/gemini-3-flash-preview --logging --no-cache
 ```
 
 ### Arguments
 
-| Argument    | Required | Default                   | Description                                  |
-| ----------- | -------- | ------------------------- | -------------------------------------------- |
-| `--model`   | ❌        | `models/gemini-2.5-flash` | LLM model to use                             |
-| `--logging` | ❌        | `False`                   | Enable logging (also via `LOGGING=true` env) |
+| Argument     | Required | Default                         | Description                                  |
+| ------------ | -------- | ------------------------------- | -------------------------------------------- |
+| `--model`    | ❌        | `models/gemini-3-flash-preview` | LLM model to use                             |
+| `--logging`  | ❌        | `False`                         | Enable logging (also via `LOGGING=true` env) |
+| `--no-cache` | ❌        | `False`                         | Disable DSPy caching for fresh LLM responses |
 
 ### Environment Variables
 
