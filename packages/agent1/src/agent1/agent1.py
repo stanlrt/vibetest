@@ -32,9 +32,12 @@ def extract_ux_tasks_dspy(conversation: str, model_name: str, enable_logging: bo
         lm = dspy.LM(model=dspy_model_name,
                      api_key=os.environ.get("GOOGLE_API_KEY"),
                      cache=not disable_cache)
+
+        # INSTRUCTION 3: Ensure dspy.settings.configure(lm=lm) is called before the architect is invoked
         dspy.settings.configure(lm=lm)
 
-        architect = QAArchitect()
+        # INSTRUCTION 2: Refactor to use cached/loaded version
+        architect = get_architect()
 
         # Convert conversation to string format expected by DSPy if it's not already
         if not isinstance(conversation, str):
@@ -72,6 +75,38 @@ def extract_ux_tasks_dspy(conversation: str, model_name: str, enable_logging: bo
         return result, dspy_prompt
     except Exception as e:
         return {"error": f"DSPy extraction failed: {str(e)}"}, None
+
+
+# INSTRUCTION 1: Implement Singleton/Caching Pattern
+_CACHED_ARCHITECT = None
+
+
+def get_architect() -> QAArchitect:
+    """
+    Returns a cached instance of QAArchitect.
+    Loads 'qa_architect_compiled.json' if it exists.
+    """
+    global _CACHED_ARCHITECT
+    if _CACHED_ARCHITECT is None:
+        print("Initializing QAArchitect...")
+        architect = QAArchitect()
+
+        # INSTRUCTION 5: Robustness - Load if exists, graceful fallback
+        compiled_path = os.path.join(os.path.dirname(
+            __file__), "qa_architect_compiled.json")
+        if os.path.exists(compiled_path):
+            try:
+                architect.load(compiled_path)
+                print(f"✅ Loaded compiled QAArchitect from {compiled_path}")
+            except Exception as e:
+                print(
+                    f"⚠️ Failed to load compiled QAArchitect: {e}. Using fresh instance.")
+        else:
+            print("ℹ️ No compiled QAArchitect found. Using fresh instance.")
+
+        _CACHED_ARCHITECT = architect
+
+    return _CACHED_ARCHITECT
 
 
 async def extract_ux_tasks(conversation: str, model_name: str, enable_logging: bool = True, disable_cache: bool = False) -> tuple[dict, dict | None]:

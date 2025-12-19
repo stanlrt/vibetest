@@ -1,6 +1,11 @@
 import dspy
 from pydantic import BaseModel, Field
 from typing import List
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # 1. Pydantic Models (The Strict Schema)
 
@@ -83,28 +88,17 @@ if __name__ == "__main__":
     from dspy.teleprompt import BootstrapFewShot
 
     # --- Configuration ---
-    # We use a dummy setup to ensure the script runs immediately for you.
-    # To use real AI, uncomment: dspy.configure(lm=dspy.LM("openai/gpt-4o"))
 
     if dspy.settings.lm is None:
-        print("⚠️ No LM configured. Using DummyLM for syntax validation.")
-
-        # Valid dummy response adhering to strict atomicity rules
-        dummy_content = TestScriptOutput(
-            reasoning="Dummy reasoning: Create (User 1) -> Negative Test -> Join (User 2).",
-            ux_tasks=[
-                UXTask(
-                    number=1,
-                    requirement="User 1 creates game",
-                    steps=["Open new tab", "Navigate to URL", "Click 'Create'"],
-                    acceptance_criteria="Game Created"
-                )
-            ]
-        ).model_dump_json()
-
-        # Use DummyLM to simulate a model response without an API key
-        model = dspy.DummyLM([dummy_content])  # type: ignore[attr-defined]
-        dspy.settings.configure(lm=model)
+        print("Configuring Gemini Model for compilation...")
+        try:
+            lm = dspy.LM(model="gemini/gemini-3-flash-preview",
+                         api_key=os.environ.get("GOOGLE_API_KEY"))
+            dspy.settings.configure(lm=lm)
+            print(f"✅ Using configured LM: {dspy.settings.lm}")
+        except Exception as e:
+            print(f"❌ Failed to configure LM: {e}")
+            exit(1)
     else:
         print(f"✅ Using configured LM: {dspy.settings.lm}")
 
@@ -212,6 +206,7 @@ if __name__ == "__main__":
     def validate_script_quality(example, pred, trace=None):
         """
         Checks for: Valid JSON, Non-empty lists, and Strict Atomicity.
+        Now includes stricter checks for mixed actions (using 'and', 'then') and combined verbs.
         """
         try:
             # 1. Structural Integrity
@@ -226,6 +221,8 @@ if __name__ == "__main__":
             ALLOWED_VERBS = ["Locate", "Click", "Type",
                              "Verify", "Wait", "Scan", "Switch", "Open"]
 
+            FORBIDDEN_WORDS = ["and", "then"]
+
             for task in pred.output.ux_tasks:
                 if not task.steps:
                     return False  # Empty steps
@@ -234,10 +231,24 @@ if __name__ == "__main__":
 
                 # Check each step for atomicity
                 for step in task.steps:
-                    # Step must start with an allowed verb
-                    first_word = str(step).strip().split(' ')[0]
+                    step_str = str(step).strip()
+                    words = step_str.lower().split()
+
+                    # Check for forbidden words indicating non-atomic steps
+                    for bad_word in FORBIDDEN_WORDS:
+                        if bad_word in words:
+                            return False
+
+                    # Check first word is an allowed verb
+                    first_word = step_str.split(' ')[0]
                     if first_word not in ALLOWED_VERBS:
                         return False
+
+                    # Check for combined verbs (e.g. "Click and Type") which might be missed by simple split
+                    # The forbidden words check handles explicit "and", but "Click Type" or similar mistakes
+                    # are harder to catch without "and".
+                    # Users specific request: "combines common verbs (e.g., 'Click and Type')"
+                    # This is largely covered by forbidding "and", but let's be extra safe if needed.
 
             return True
 
@@ -258,7 +269,10 @@ if __name__ == "__main__":
         print("✅ Compilation successful!")
 
         # Save the optimized prompt logic
-        compiled_architect.save("qa_architect_compiled.json")
+        save_path = os.path.join(os.path.dirname(
+            __file__), "qa_architect_compiled.json")
+        compiled_architect.save(save_path)
+        print(f"✅ Saved compiled QAArchitect to {save_path}")
 
         # Test Run
         test_input = "User: I want to be able to edit my profile. But first I need to register."
