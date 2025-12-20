@@ -77,7 +77,7 @@ uv run vibetester \
 | `--output`, `-o`     | ❌        | `./data/results/`               | Output directory for logs                                                 |
 | `--full-paths`       | ❌        | `False`                         | Treat `--transcript` and `--output` as full paths                         |
 | `--logging`          | ❌        | `False`                         | Enable logging (also via `LOGGING=true` env)                              |
-| `--no-cache`         | ❌        | `False`                         | Disable DSPy caching for agent 1                                          |
+| `--no-cache`         | ❌        | `False`                         | Disable DSPy caching for agents 1 and 3                                   |
 
 *Either `--test-case` OR both `--url` and `--transcript` are required.
 

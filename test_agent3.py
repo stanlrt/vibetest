@@ -85,9 +85,7 @@ if __name__ == "__main__":
         print(f"\nGrouped Tests:")
         for i, test in enumerate(results.grouped_tests, 1):
             print(f"\n  {i}. {test.test_name}")
-            print(f"     Type: {test.test_type.value}")
             print(f"     Passed: {test.passed}")
-            print(f"     Atomic tasks: {test.atomic_tasks}")
             print(f"     Summary: {test.summary}")
 
         # Convert to dict to show JSON structure
