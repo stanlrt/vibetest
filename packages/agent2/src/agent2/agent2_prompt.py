@@ -61,6 +61,9 @@ If an action fails (e.g., input not interactable) or you are stuck in a loop:
 **Post-Action Verification:**
 - After clicking buttons, confirm the UI updated (e.g., button disappeared, new screen appeared, confirmation message shown).
 - If verification fails, take a `screenshot` and retry with alternative click methods before failing the task.
+
+**Critical actions**
+- Never close all tabs unless you finished all tasks. This will terminate the entire browser session and you will forever lose connection.
 </OPERATIONAL_PROTOCOL>
 
 <TASK_SCHEMA>

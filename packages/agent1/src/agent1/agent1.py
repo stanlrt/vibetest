@@ -1,13 +1,15 @@
-from .agent1_prompt import QAArchitect
-import dspy
 import argparse
-from pathlib import Path
 import asyncio
 import json
 import os
-from shared.experiment_logger import log_experiment
-from .sample_conversation import complex_conversation, complex_conversation_v2, pitch_hum
+from pathlib import Path
+
+import dspy
 from dotenv import load_dotenv
+from shared.experiment_logger import log_experiment
+
+from .agent1_prompt import QAArchitect
+from .sample_conversation import pitch_hum
 
 # Environment variable is set in the .env file
 load_dotenv()
