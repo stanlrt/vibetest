@@ -33,7 +33,7 @@ class TestScriptOutput(BaseModel):
     # 'reasoning' is defined first to enforce Chain-of-Thought behavior within the JSON generation.
     reasoning: str = Field(
         ...,
-        description="Step-back analysis: 1. Map Resource Lifecycle (Create -> Join). 2. Identify Negative Tests (errors/disabled states). 3. Plan Tab switching."
+        description="Step-back analysis: 1. Map Resource Lifecycle (Create -> Join). 2. Identify Negative Tests (errors/disabled states). 3. Check temporal order: test constraints BEFORE state changes. 4. Plan Tab switching."
     )
     ux_tasks: List[UXTask] = Field(
         ...,
@@ -51,10 +51,13 @@ class TestScriptSignature(dspy.Signature):
     1. ATOMICITY: Steps must be single actions. Never combine actions (e.g., "Login and Click" is FORBIDDEN).
        - BAD: "Navigate to URL and login"
        - GOOD: "Open new tab", "Navigate to URL", "Type 'user'", "Click 'Login'"
-    2. NEGATIVE TESTING: Verify error states or disabled buttons BEFORE performing the successful action.
-    3. TAB MANAGEMENT: Explicitly manage state. Use "Switch to tab 1" or "Open new tab for User 2".
-    4. LIFECYCLE: A resource must be CREATED (User 1) before it can be JOINED (User 2).
-    5. IMPLICIT EDGE CASES: Beyond explicit requirements, infer what SHOULD fail based on common sense:
+    2. TEMPORAL ORDERING: Test constraints BEFORE the state changes that would make them invalid.
+       - BAD: Create room → User joins → Test "can't start with 1 player" (now there are 2!)
+       - GOOD: Create room → Test "can't start with 1 player" → User joins → Start game
+    3. NEGATIVE TESTING: Verify error states or disabled buttons BEFORE performing the successful action.
+    4. TAB MANAGEMENT: Explicitly manage state. Use "Switch to tab 1" or "Open new tab for User 2".
+    5. LIFECYCLE: A resource must be CREATED (User 1) before it can be JOINED (User 2).
+    6. IMPLICIT EDGE CASES: Beyond explicit requirements, infer what SHOULD fail based on common sense:
        - If there's authentication, test accessing protected resources without logging in.
        - If there are inputs with logical constraints, test invalid/impossible values.
        - If there's authorization (roles/ownership), test actions by unauthorized users.
@@ -84,7 +87,8 @@ class QAArchitect(dspy.Module):
 # 4. Optimization & Execution Setup
 
 
-if __name__ == "__main__":
+def main():
+    """Entry point for agent1-compile command."""
     from dspy.teleprompt import BootstrapFewShot
 
     # --- Configuration ---
@@ -119,18 +123,26 @@ if __name__ == "__main__":
         ]
     )
 
-    example2_input = """User: "Host creates room first. User can't join if room doesn't exist." """
+    example2_input = """User: "Host creates room. Game can't start with 1 player. User 2 joins, then game starts." """
     example2_output = TestScriptOutput(
-        reasoning="User 1 (Host) must Create Room (Task 2) before User 2 can Join. Added negative test first.",
+        reasoning="TEMPORAL ORDER: 1. Host creates room (1 player). 2. Test constraint BEFORE state changes (verify disabled with 1 player). 3. User 2 joins (2 players). 4. Test success (start game).",
         ux_tasks=[
-            UXTask(number=1, requirement="Verify User 2 cannot join non-existent room",
-                   steps=["Open new tab", "Navigate to URL", "Type '9999'",
-                          "Click 'Join'", "Verify error message"],
-                   acceptance_criteria="Error displayed"),
-            UXTask(number=2, requirement="User 1 (Host) creates room",
-                   steps=["Switch to tab 1",
-                          "Click 'Create Room'", "Verify Code"],
-                   acceptance_criteria="Code displayed")
+            UXTask(number=1, requirement="User 1 (Host) creates room",
+                   steps=["Click 'Create Room'",
+                          "Type 'Alice'", "Verify code displayed"],
+                   acceptance_criteria="Room created with 1 player"),
+            UXTask(number=2, requirement="Verify Start Game disabled with only 1 player",
+                   steps=["Locate 'Start Game' button",
+                          "Verify element is disabled"],
+                   acceptance_criteria="Button disabled with 1 player"),
+            UXTask(number=3, requirement="User 2 joins room",
+                   steps=["Open new tab", "Type room code",
+                          "Click 'Join'", "Type 'Bob'"],
+                   acceptance_criteria="User 2 visible in lobby"),
+            UXTask(number=4, requirement="Host starts game with 2 players",
+                   steps=[
+                       "Switch to tab 1", "Verify 'Start Game' button is enabled", "Click 'Start Game'"],
+                   acceptance_criteria="Game starts successfully")
         ]
     )
     example_negative = """User: "Ensure users can't login with bad passwords." """
@@ -206,7 +218,7 @@ if __name__ == "__main__":
     def validate_script_quality(example, pred, trace=None):
         """
         Checks for: Valid JSON, Non-empty lists, and Strict Atomicity.
-        Now includes stricter checks for mixed actions (using 'and', 'then') and combined verbs.
+        Improved to avoid false negatives from quoted content.
         """
         try:
             # 1. Structural Integrity
@@ -221,8 +233,6 @@ if __name__ == "__main__":
             ALLOWED_VERBS = ["Locate", "Click", "Type",
                              "Verify", "Wait", "Scan", "Switch", "Open"]
 
-            FORBIDDEN_WORDS = ["and", "then"]
-
             for task in pred.output.ux_tasks:
                 if not task.steps:
                     return False  # Empty steps
@@ -232,23 +242,25 @@ if __name__ == "__main__":
                 # Check each step for atomicity
                 for step in task.steps:
                     step_str = str(step).strip()
-                    words = step_str.lower().split()
+                    if not step_str:
+                        return False
 
-                    # Check for forbidden words indicating non-atomic steps
-                    for bad_word in FORBIDDEN_WORDS:
-                        if bad_word in words:
-                            return False
-
-                    # Check first word is an allowed verb
-                    first_word = step_str.split(' ')[0]
+                    # Check first word is an allowed verb (case-insensitive)
+                    first_word = step_str.split()[0]
                     if first_word not in ALLOWED_VERBS:
                         return False
 
-                    # Check for combined verbs (e.g. "Click and Type") which might be missed by simple split
-                    # The forbidden words check handles explicit "and", but "Click Type" or similar mistakes
-                    # are harder to catch without "and".
-                    # Users specific request: "combines common verbs (e.g., 'Click and Type')"
-                    # This is largely covered by forbidding "and", but let's be extra safe if needed.
+                    # Check for multiple action verbs (indicates non-atomic step)
+                    # Only check outside quoted strings to avoid false positives
+                    # Remove quoted content first
+                    import re
+                    without_quotes = re.sub(r"['\"].*?['\"]", "", step_str)
+
+                    # Count ALLOWED_VERBS in the remaining text
+                    verb_count = sum(
+                        1 for verb in ALLOWED_VERBS if verb in without_quotes.split())
+                    if verb_count > 1:
+                        return False  # Multiple verbs = non-atomic
 
             return True
 
@@ -286,3 +298,7 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ Execution failed: {e}")
         print("Ensure you have a valid LM configured if you aren't using DummyLM.")
+
+
+if __name__ == "__main__":
+    main()

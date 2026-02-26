@@ -12,6 +12,7 @@ dependencies = [
 
 [project.scripts]
 agent1 = "agent1.agent1:run"
+agent1-compile = "agent1.agent1_prompt:main"
 
 [tool.uv.sources]
 shared = { workspace = true }

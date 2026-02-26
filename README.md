@@ -22,7 +22,7 @@ Q-NCLC/
 
 The system consists of three agents working in a pipeline:
 
-- **Agent 1 (Requirement Extractor)**: Analyzes natural language conversations between a user and a coding assistant to extract formal testing requirements. It produces a structured list of atomic test steps.
+- **Agent 1 (Requirement Extractor)**: Analyzes natural language conversations between a user and a coding assistant to extract formal testing requirements. It produces a structured list of atomic test steps. Uses DSPy for prompt optimization with few-shot learning.
 - **Agent 2 (Browser Tester)**: Takes the test steps from Agent 1 and executes them in a real browser environment to verify the application's behavior. It acts as an automated user and generates individual test results for each atomic step.
 - **Agent 3 (Test Grouper)**: Groups related atomic test steps from Agent 1 and their results from Agent 2 into meaningful, cohesive test scenarios. It identifies test types (validation, functional, integration, workflow) and provides aggregated reporting.
 
@@ -80,6 +80,16 @@ uv run agent1
 ```
 
 Run `uv run agent1 --help` for all options, or refer to the [dedicated README](./packages/agent1/README.md#arguments).
+
+#### Recompiling Agent 1 (DSPy Optimization)
+
+Agent 1 uses a pre-compiled DSPy model for fast inference. To retrain/optimize with new examples:
+
+```bash
+uv run agent1-compile
+```
+
+See the [Agent 1 README](./packages/agent1/README.md#dspy-optimization-workflow) for details on the compilation workflow.
 
 ### Agent 2 (Standalone)
 

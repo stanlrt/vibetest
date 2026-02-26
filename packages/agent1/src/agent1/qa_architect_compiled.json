@@ -17,8 +17,7 @@
                 "Locate 'Max Price' input",
                 "Type '100'",
                 "Click 'Apply Filter' button",
-                "Verify error message is visible",
-                "Verify text 'Min must be less than Max' appears"
+                "Verify error message"
               ],
               "acceptance_criteria": "Error displayed indicating min must be less than max"
             },
@@ -29,7 +28,7 @@
                 "Locate 'Min Price' input",
                 "Type '-50'",
                 "Click 'Apply Filter' button",
-                "Verify error message is visible"
+                "Verify error message"
               ],
               "acceptance_criteria": "Error displayed indicating price cannot be negative"
             },
@@ -42,8 +41,7 @@
                 "Locate 'Max Price' input",
                 "Type '500'",
                 "Click 'Apply Filter' button",
-                "Verify results list updates",
-                "Verify all visible items are within the 100-500 range"
+                "Verify results filtered"
               ],
               "acceptance_criteria": "Results show only items within price range"
             }
@@ -61,8 +59,7 @@
               "steps": [
                 "Open new tab",
                 "Navigate to '/profile'",
-                "Verify current URL is '/login'",
-                "Verify text 'Please log in' is visible"
+                "Verify redirect to login or error message"
               ],
               "acceptance_criteria": "User is redirected to login or sees 'Please log in' message"
             },
@@ -72,7 +69,7 @@
               "steps": [
                 "Navigate to '/profile/other-user-id'",
                 "Locate 'Edit Bio' button",
-                "Verify element is hidden"
+                "Verify element is disabled or not visible"
               ],
               "acceptance_criteria": "Edit functionality is not available for other users' profiles"
             },
@@ -83,9 +80,7 @@
                 "Navigate to '/profile'",
                 "Click 'Edit Bio'",
                 "Type 'New bio text'",
-                "Click 'Save'",
-                "Verify text 'Bio updated' is visible",
-                "Verify text 'New bio text' is present on page"
+                "Click 'Save'"
               ],
               "acceptance_criteria": "Bio updated successfully"
             }
@@ -101,10 +96,9 @@
               "number": 1,
               "requirement": "Verify login fails with invalid password",
               "steps": [
-                "Type 'user@example.com' into 'Email'",
-                "Type 'wrongpass' into 'Password'",
+                "Type 'wrongpass'",
                 "Click 'Login'",
-                "Verify error message 'Invalid credentials' is visible"
+                "Verify error message"
               ],
               "acceptance_criteria": "Error displayed"
             },
@@ -112,10 +106,8 @@
               "number": 2,
               "requirement": "User logs in successfully",
               "steps": [
-                "Type 'user@example.com' into 'Email'",
-                "Type 'correctpass' into 'Password'",
-                "Click 'Login'",
-                "Verify 'Dashboard' header is visible"
+                "Type 'correctpass'",
+                "Click 'Login'"
               ],
               "acceptance_criteria": "Dashboard visible"
             }
@@ -123,57 +115,85 @@
         }
       },
       {
-        "conversation_log": "User: \"Host creates room first. User can't join if room doesn't exist.\" ",
+        "conversation_log": "User: \"Host creates room. Game can't start with 1 player. User 2 joins, then game starts.\" ",
         "output": {
-          "reasoning": "User 1 (Host) must Create Room (Task 2) before User 2 can Join. Added negative test first.",
+          "reasoning": "TEMPORAL ORDER: 1. Host creates room (1 player). 2. Test constraint BEFORE state changes (verify disabled with 1 player). 3. User 2 joins (2 players). 4. Test success (start game).",
           "ux_tasks": [
             {
               "number": 1,
-              "requirement": "Verify User 2 cannot join non-existent room",
+              "requirement": "User 1 (Host) creates room",
               "steps": [
-                "Open new tab",
-                "Navigate to URL",
-                "Type '9999'",
-                "Click 'Join'",
-                "Verify text 'Room not found' is visible"
+                "Click 'Create Room'",
+                "Type 'Alice'",
+                "Verify code displayed"
               ],
-              "acceptance_criteria": "Error displayed"
+              "acceptance_criteria": "Room created with 1 player"
             },
             {
               "number": 2,
-              "requirement": "User 1 (Host) creates room",
+              "requirement": "Verify Start Game disabled with only 1 player",
+              "steps": [
+                "Locate 'Start Game' button",
+                "Verify element is disabled"
+              ],
+              "acceptance_criteria": "Button disabled with 1 player"
+            },
+            {
+              "number": 3,
+              "requirement": "User 2 joins room",
+              "steps": [
+                "Open new tab",
+                "Type room code",
+                "Click 'Join'",
+                "Type 'Bob'"
+              ],
+              "acceptance_criteria": "User 2 visible in lobby"
+            },
+            {
+              "number": 4,
+              "requirement": "Host starts game with 2 players",
               "steps": [
                 "Switch to tab 1",
-                "Click 'Create Room'",
-                "Verify 4-digit code is displayed"
+                "Verify 'Start Game' button is enabled",
+                "Click 'Start Game'"
               ],
-              "acceptance_criteria": "Code displayed"
+              "acceptance_criteria": "Game starts successfully"
             }
           ]
         }
       },
       {
-        "conversation_log": "User: \"The game allows voting. Players cannot vote for themselves.\" ",
+        "conversation_log": "User: \"I need a login form. Button disabled if password short. Remove 'Forgot Password'.\" ",
         "output": {
-          "reasoning": "Constraint check: Self-voting is forbidden. Ensure User 1 (Alice) cannot see her own name in the vote list.",
+          "reasoning": "Identified 'Login' flow. Negative constraint (disabled button) must be tested BEFORE positive action.",
           "ux_tasks": [
             {
               "number": 1,
-              "requirement": "Verify User 1 (Host) cannot vote for themselves",
+              "requirement": "Verify 'Login' button is disabled (Negative Test)",
               "steps": [
-                "Switch to tab 1",
-                "Verify 'Voting' screen is visible",
-                "Locate list of players to vote for",
-                "Verify 'Alice' is not present in the voting list"
+                "Locate 'Password' input",
+                "Type '123'",
+                "Locate 'Login' button",
+                "Verify element is disabled"
               ],
-              "acceptance_criteria": "User 1 name is excluded from their own voting options."
+              "acceptance_criteria": "Button disabled"
+            },
+            {
+              "number": 2,
+              "requirement": "User logs in successfully",
+              "steps": [
+                "Locate 'Password' input",
+                "Type 'validPass'",
+                "Click 'Login' button"
+              ],
+              "acceptance_criteria": "Dashboard visible"
             }
           ]
         }
       }
     ],
     "signature": {
-      "instructions": "Translate a conversation log into a linear, executable QA test script for browser automation.\n\nCRITICAL CONSTRAINTS:\n1. ATOMICITY: Steps must be single actions. Never combine actions (e.g., \"Login and Click\" is FORBIDDEN).\n   - BAD: \"Navigate to URL and login\"\n   - GOOD: \"Open new tab\", \"Navigate to URL\", \"Type 'user'\", \"Click 'Login'\"\n2. NEGATIVE TESTING: Verify error states or disabled buttons BEFORE performing the successful action.\n3. TAB MANAGEMENT: Explicitly manage state. Use \"Switch to tab 1\" or \"Open new tab for User 2\".\n4. LIFECYCLE: A resource must be CREATED (User 1) before it can be JOINED (User 2).\n5. IMPLICIT EDGE CASES: Beyond explicit requirements, infer what SHOULD fail based on common sense:\n   - If there's authentication, test accessing protected resources without logging in.\n   - If there are inputs with logical constraints, test invalid/impossible values.\n   - If there's authorization (roles/ownership), test actions by unauthorized users.\n   - If there's data validation, test boundary violations the app should reject.",
+      "instructions": "Translate a conversation log into a linear, executable QA test script for browser automation.\n\nCRITICAL CONSTRAINTS:\n1. ATOMICITY: Steps must be single actions. Never combine actions (e.g., \"Login and Click\" is FORBIDDEN).\n   - BAD: \"Navigate to URL and login\"\n   - GOOD: \"Open new tab\", \"Navigate to URL\", \"Type 'user'\", \"Click 'Login'\"\n2. TEMPORAL ORDERING: Test constraints BEFORE the state changes that would make them invalid.\n   - BAD: Create room → User joins → Test \"can't start with 1 player\" (now there are 2!)\n   - GOOD: Create room → Test \"can't start with 1 player\" → User joins → Start game\n3. NEGATIVE TESTING: Verify error states or disabled buttons BEFORE performing the successful action.\n4. TAB MANAGEMENT: Explicitly manage state. Use \"Switch to tab 1\" or \"Open new tab for User 2\".\n5. LIFECYCLE: A resource must be CREATED (User 1) before it can be JOINED (User 2).\n6. IMPLICIT EDGE CASES: Beyond explicit requirements, infer what SHOULD fail based on common sense:\n   - If there's authentication, test accessing protected resources without logging in.\n   - If there are inputs with logical constraints, test invalid/impossible values.\n   - If there's authorization (roles/ownership), test actions by unauthorized users.\n   - If there's data validation, test boundary violations the app should reject.",
       "fields": [
         {
           "prefix": "Conversation Log:",

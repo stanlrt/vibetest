@@ -1,6 +1,7 @@
 from .agent1_prompt import QAArchitect
 import dspy
 import argparse
+from pathlib import Path
 import asyncio
 import json
 import os
@@ -10,6 +11,9 @@ from dotenv import load_dotenv
 
 # Environment variable is set in the .env file
 load_dotenv()
+
+# Default directories for test cases
+DEFAULT_TEST_CASES_DIR = "./data/test-cases"
 
 
 def extract_ux_tasks_dspy(conversation: str, model_name: str, enable_logging: bool = True, disable_cache: bool = False) -> tuple[dict, dict | None]:
@@ -133,6 +137,67 @@ def is_logging_enabled(cli_flag: bool) -> bool:
     return env_val in ("true", "1", "yes")
 
 
+def resolve_test_case_path(test_case_arg: str) -> Path:
+    """
+    Resolve test case argument to a full path.
+
+    Args:
+        test_case_arg: Filename or full path
+
+    Returns:
+        Resolved Path object
+    """
+    # Check if it's already a path (contains separator or starts with ./)
+    if os.sep in test_case_arg or test_case_arg.startswith("./") or test_case_arg.startswith(".."):
+        return Path(test_case_arg)
+
+    # Look in default test cases directory
+    return Path(DEFAULT_TEST_CASES_DIR) / test_case_arg
+
+
+def load_test_case(test_case_path: Path) -> str:
+    """
+    Load a test case file containing transcript.
+
+    Args:
+        test_case_path: Path to JSON test case file
+
+    Returns:
+        Transcript string (JSON or raw text)
+
+    Raises:
+        FileNotFoundError: If file doesn't exist
+        ValueError: If file is not valid JSON or missing required keys
+    """
+    if not test_case_path.exists():
+        raise FileNotFoundError(
+            f"Test case file not found: {test_case_path}")
+
+    content = test_case_path.read_text(encoding="utf-8")
+
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid JSON in test case file: {e}")
+
+    if not isinstance(data, dict):
+        raise ValueError(
+            "Test case file must be a JSON object with 'transcript' key")
+
+    if "transcript" not in data:
+        raise ValueError("Test case file missing required 'transcript' key")
+
+    transcript = data["transcript"]
+
+    # Transcript can be a list (JSON transcript) or a string (raw text)
+    if isinstance(transcript, list):
+        return json.dumps(transcript)
+    elif isinstance(transcript, str):
+        return transcript
+    else:
+        raise ValueError("'transcript' must be a list or string")
+
+
 async def main():
     parser = argparse.ArgumentParser(
         description="Run Agent 1 with a specific model.")
@@ -140,7 +205,10 @@ async def main():
     parser.add_argument("--model", type=str, default="models/gemini-3-flash-preview",
                         help="The model to use (e.g., models/gemini-3-flash-preview or gpt-4o).")
     parser.add_argument(
-        "--input", type=str, help="Path to input conversation file (.json, .txt, .md)")
+        "--test-case", "-tc",
+        help=f"Test case JSON filename containing 'transcript' key (looked up in {DEFAULT_TEST_CASES_DIR}/)")
+    parser.add_argument(
+        "--input", type=str, help="[Legacy] Path to input conversation file (.json, .txt, .md)")
 
     parser.add_argument("--logging", action="store_true",
                         help="Enable logging to ./data/results/ (also enabled by LOGGING=true env var)")
@@ -153,7 +221,19 @@ async def main():
 
     # sample conversation to test the agent 1 UX task extraction.
 
-    if args.input:
+    if args.test_case:
+        # New test case mode
+        if args.input:
+            print("❌ Error: --test-case (-tc) cannot be combined with --input")
+            return
+
+        test_case_path = resolve_test_case_path(args.test_case)
+        try:
+            sample_conversation = load_test_case(test_case_path)
+        except (FileNotFoundError, ValueError) as e:
+            print(f"❌ Error loading test case: {e}")
+            return
+    elif args.input:
         try:
             with open(args.input, 'r', encoding='utf-8') as f:
                 content = f.read()
