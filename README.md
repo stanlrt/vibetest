@@ -1,6 +1,8 @@
-# Q-NCLC Monorepo
+# Vibetester
 
-This repository contains the vibetesting agents organized as a monorepo.
+Vibetester allows to test your vibe-coded apps. Give it the chat transcript, and it will extract formal functional requirements, test them using Browser Use, and report back. You can pass this report to your vibe-coding agent to create a testing loop.
+
+<video src="./demo.mp4" controls></video>
 
 ## Structure
 
