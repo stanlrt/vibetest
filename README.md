@@ -2,7 +2,7 @@
 
 Vibetester allows to test your vibe-coded apps. Give it the chat transcript, and it will extract formal functional requirements, test them using Browser Use, and report back. You can pass this report to your vibe-coding agent to create a testing loop.
 
-<video src="./demo.mp4" controls></video>
+<video src="https://github.com/stanlrt/vibetest/blob/cc868e776e92ae41afd6a0dd82eb88eccb2d17a8/demo.mp4" controls></video>
 
 ## Structure
 
