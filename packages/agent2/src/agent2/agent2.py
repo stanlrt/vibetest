@@ -1,20 +1,18 @@
-from .tools import register_tools
 import argparse
 import asyncio
 import json
 import os
 import time
-from browser_use import Agent, Browser, Tools
-from browser_use import Browser
-from browser_use.llm import ChatBrowserUse
 
+from browser_use import Agent, Browser, Tools
+from browser_use.llm import ChatBrowserUse
+from shared.experiment_logger import log_experiment
 
 from .agent2_prompt import AGENT_PROMPT
 from .models import UXTestResults
-from shared.experiment_logger import log_experiment
+from .tools import register_tools
 
-
-tools = Tools(exclude_actions=["write_file", "go_back"])
+tools = Tools(exclude_actions=["write_file", "go_back", "wait", "click"])
 
 register_tools(tools)
 
@@ -79,7 +77,8 @@ async def run_browser_test(tasks: str, headless: bool = False, enable_logging: b
 
     agent = Agent(
         task=tasks,
-        llm=ChatBrowserUse(temperature=0.0),
+        # llm=ChatBrowserUse(model="browser-use/bu-30b-a3b-preview"),
+        llm=ChatBrowserUse(model="bu-2-0", temperature=0.0),
         browser_session=browser,
         tools=tools,
         flash_mode=True,

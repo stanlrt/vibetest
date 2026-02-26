@@ -2,6 +2,9 @@
 
 This directory contains all input and output data for the Q-NCLC experiments.
 
+> [!IMPORTANT]
+> We recommend using the Doodle testcase. To use the Bloom test case, contact the repo owners so they re-activate the app; Bloom regularly kills it due to inactivity. To use the Blackjack test case, contact @durnejon
+
 ## Structure
 
 ```text
@@ -25,20 +28,10 @@ Test cases are JSON objects with `url` and `transcript` keys:
 {
     "url": "https://myapp.example.com",
     "transcript": [
-        {"role": "user", "content": "I want to build a habit tracker app."},
-        {"role": "developer", "content": "Great idea. What features do you want?"},
-        {"role": "user", "content": "I need to be able to log my habits daily."},
-        {"role": "developer", "content": "Daily logging, got it."}
+        //... chat messages ...
     ]
 }
 ```
-
-### Role Values
-
-| Role        | Description                         |
-| ----------- | ----------------------------------- |
-| `user`      | The person requesting features      |
-| `developer` | The person building the application |
 
 ### Naming Convention
 
@@ -64,33 +57,7 @@ Pipeline outputs from vibetester runs. These are automatically generated and con
 
 ### Naming Convention
 
-Automatically generated: `YYYYMMDD_HHMMSS_vibetester.json`
-
-### Example Output Structure
-
-```json
-{
-  "timestamp": "2025-11-27T15:30:00",
-  "config": {
-    "url": "https://myapp.example.com",
-    "model": "models/gemini-2.0-flash",
-    "headless": false
-  },
-  "transcript": [...],
-  "agent1_output": {
-    "ux_tasks": [...]
-  },
-  "agent2_output": {
-    "success": true,
-    "duration_seconds": 45.2
-  },
-  "timing": {
-    "stage1_extraction_seconds": 3.5,
-    "stage2_browser_seconds": 45.2,
-    "total_seconds": 48.7
-  }
-}
-```
+Automatically generated: `YYYYMMDD_HHMMSS_vibetester_test-case_url.json````
 
 ---
 

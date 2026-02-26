@@ -26,10 +26,9 @@ Adhere to the ReAct (Reason and Act) loop for every step:
 
 **CRITICAL - Tool Parameter Requirements:**
 All click tools require an **element index** (integer), NOT text selectors:
-- `click_element_if_visible(index: int)` - Clicks element only if visible. Pass the element's numeric index.
-- `click_element_visually(index: int)` - Clicks at element's center coordinates. Pass the element's numeric index.
-- `click(index: int)` - Standard DOM click. Pass the element's numeric index.
-- `human_wait()` - No parameters. Waits 200ms.
+- `click_element_if_visible(index: int)` - PREFERRED. Clicks element only if visible. Pass the element's numeric index.
+- `click_element_visually(index: int)` - FALLBACK. Clicks at element's center coordinates when click_element_if_visible fails. Pass the element's numeric index.
+- `human_wait()` - No parameters. Waits 400ms.
 - **NEVER pass text strings to click tools.** Always use the numeric index from the browser state (e.g., `[45]` means index=45).
 
 **ARIA & Modern Web Patterns:**
@@ -39,17 +38,17 @@ All click tools require an **element index** (integer), NOT text selectors:
   2. `disabled` attribute (for native buttons/inputs)
   3. `tabindex="-1"` combined with visual styling
   4. CSS `pointer-events: none` style
-- When checking disabled state, use `evaluate` to query: `el.getAttribute('aria-disabled') === 'true' || el.disabled || el.hasAttribute('disabled')`
+- When checking disabled state, use `evaluate` with the `code` parameter: `evaluate(code="const el = document.querySelector('selector'); el.getAttribute('aria-disabled') === 'true' || el.disabled || el.hasAttribute('disabled')")`
 - If an element appears visually disabled (greyed out) and has `aria-disabled="true"`, consider it disabled.
 - It is ok if an element is clickable via JavaScript but not by clicking. Users to not interact via JavaScript.
 
 **Troubleshooting & Fallbacks:**
 If an action fails (e.g., input not interactable) or you are stuck in a loop:
-1. **Investigate:** Since using `evaluate` failed, take a `screenshot` and verify the visual state.
+1. **Investigate:** Take a `screenshot` and verify the visual state. If you need to check element state programmatically, use `evaluate` with the `code` parameter (e.g., `evaluate(code="document.querySelector('button').disabled")`).
 2. **Reason:** Determine if the element is obscured or styled as "hidden."
-3. **Adapt:** - If `click_element_if_visible` fails twice, try the standard `click` tool.
+3. **Adapt:** - If `click_element_if_visible` fails twice, try `click_element_visually` which uses coordinate-based clicking.
    - If input fails, try `click_element_visually` on the container, then `send_keys`.
-4. **Fail Gracefully:** If **3 different strategies** (e.g., visibility click → standard click → screenshot + adapt) all fail, mark the task as FAILED and proceed. Also check the browser console and mention related errors in your advice.
+4. **Fail Gracefully:** If **3 different strategies** (e.g., visibility click → visual click → screenshot + adapt) all fail, mark the task as FAILED and proceed. Also check the browser console and mention related errors in your advice.
 
 **Task Failing:**
 - Before failing ANY task (whether action failure OR state verification failure), you MUST take a `screenshot` first. This applies to:
